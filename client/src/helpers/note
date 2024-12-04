@@ -1,0 +1,84 @@
+import React, { FC, useReducer, useEffect, useContext } from "react";
+import { useParams } from "react-router-dom";
+import ProductService from "../../services/productServices";
+import { Helmet } from "react-helmet-async";
+import LoadingBox from "../LoadingBox/LoadingBox";
+import getError from "../../helpers/getError";
+
+import { ProductContext } from "../../contexts/ProductContextProvider";
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case "FETCH_REQUEST":
+      return { ...state, loading: true };
+    case "FETCH_SUCCESS":
+      return { ...state, product: action.payload, loading: false };
+    case "FETCH_FAILED":
+      return { ...state, loading: false, error: action.payload };
+    default:
+      return state;
+  }
+};
+
+const ProudctScreen: FC = () => {
+  const params = useParams();
+  const { slug } = params;
+  const {
+    product,
+    loading,
+    productError,
+    setProduct,
+    setLoading,
+    setProductError,
+  } = useContext(ProductContext);
+
+  console.log(product);
+  /*const [{ loading, error, product }, dispatch] = useReducer(reducer, {
+    product: [],
+    loading: true,
+    error: "",
+  });
+  useEffect(() => {
+    const fetchProducts = async () => {
+      dispatch({ type: "FETCH REQUEST" });
+      try {
+        const dbdata = await ProductService.getProductById(slug);
+        dispatch({ type: "FETCH_SUCCESS", payload: dbdata.data });
+      } catch (error: any) {
+        dispatch({ type: "FETCH_FAILED", payload: getError(error) });
+      }
+    };
+    fetchProducts();
+  }, [slug]);
+  console.log(product);
+  */ return (
+    <>
+      <h1 className="text-3xl">Product Screen</h1>
+      {loading ? (
+        <LoadingBox />
+      ) : error ? (
+        <div>{error}</div>
+      ) : (
+        <>
+          <div>
+            <div className="flex gap-4">
+              <div>
+                <img
+                  src={`http://localhost:7240/static/${product.image}`}
+                  alt={product.name}
+                />
+              </div>
+              <Helmet>
+                <title>{product.name}</title>
+              </Helmet>
+              <h1>{product.name}</h1>
+              <div></div>
+            </div>
+          </div>
+        </>
+      )}
+    </>
+  );
+};
+
+export default ProudctScreen;

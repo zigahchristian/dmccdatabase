@@ -1,0 +1,13 @@
+services:
+  api:
+    container_name: "docker_api"
+    build:
+      context: ./
+      dockerfile: Dockerfile.dev
+    ports:
+      - "7244:7244"
+    network_mode: "host"
+    volumes:
+      - /app/node_modules
+      - .:/app
+    

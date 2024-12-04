@@ -1,0 +1,75 @@
+services:
+  mongo:
+    container_name: "mongodb"
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    ports:
+      - 27017:27017
+    env_file:
+      - ./db/.env
+    volumes:
+      - database-v:/data/db
+    networks:
+      - dmcc-network
+      
+  api:
+    container_name: "dmccserver"
+    build:
+      context: ./server
+      dockerfile: Dockerfile.dev
+    ports:
+      - 7240:7240
+    volumes:
+      - /app/node_modules
+      - ./server:/app
+    depends_on:
+      - mongo
+    env_file:
+      - ./server/src/.env
+    networks:
+      - dmcc-network
+    
+    
+     
+  client:
+    container_name: "dmccclient"
+    build:
+      context: ./client
+      dockerfile: Dockerfile.dev
+    restart: always
+    ports:
+      - 5173:5173
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+
+    networks:
+      - dmcc-network
+
+  nginx:
+    container_name: "dmccnginx"
+    tty: true
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile.dev
+    ports:
+      - 80:80
+    networks:
+      - dmcc-network
+    depends_on:
+      - api
+      - client
+   
+
+
+
+
+volumes:
+  dmccserver-node-modules:
+    name: "dmcccserver-node-modules"
+  database-v:
+    name: "database-v"
+
+networks:
+  dmcc-network:
