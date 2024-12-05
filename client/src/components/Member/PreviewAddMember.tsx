@@ -10,13 +10,17 @@ import {
 } from "../ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { RegisterContext } from "../../contexts/RegisterContext";
 import { ImageUpload } from "./ImageUpload";
 import { Link } from "react-router-dom";
 import secureLocalStorage from "react-secure-storage";
+import MemberService from "../../services/memberService";
+import { AuthContext } from "../../contexts/AuthContext";
+import base64ToImageFile from "../../helpers/base64ToImageFile";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 
 const PreviewAddMember = () => {
-  const newmember = secureLocalStorage.getItem("newmember");
+  const newmember: any = secureLocalStorage.getItem("newmember");
+  const { authUser } = useContext(AuthContext);
   console.log(newmember);
   const formSchema = z.object({
     alive: z.string(),
@@ -215,7 +219,11 @@ const PreviewAddMember = () => {
     },
   });
 
-  async function onSubmit(values: FormValues) {}
+  async function onSubmit(values: FormValues) {
+    const response = await MemberService.addMember(values, authUser._id);
+    console.log(resonse);
+    return;
+  }
 
   return (
     <Form {...form}>
@@ -237,14 +245,7 @@ const PreviewAddMember = () => {
               render={({ field }) => (
                 <FormItem className="flex flex-col items-center">
                   <FormControl>
-                    <ImageUpload
-                      value={field.value}
-                      onChange={(dataUrl, file) => {
-                        field.onChange(dataUrl);
-                        if (file) setAvatarFile(file);
-                      }}
-                      disabled={form.formState.isSubmitting}
-                    />
+                    <img src={newmember.avatar} className="h-36 w-36" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -256,6 +257,14 @@ const PreviewAddMember = () => {
                   <dt className="text-sm font-medium text-gray-500">Alive</dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                     {newmember?.alive}
+                  </dd>
+                </div>
+                <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                  <dt className="text-sm font-medium text-gray-500">
+                    Membership
+                  </dt>
+                  <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                    {newmember?.membership}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">

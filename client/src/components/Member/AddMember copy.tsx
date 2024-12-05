@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -31,8 +31,6 @@ import { X, CalendarIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useNotification } from "../../contexts/NotificationContext";
 import secureLocalStorage from "react-secure-storage";
-console.log(secureLocalStorage.getItem("uploadImg"));
-import base64ToImageFile from "../../helpers/base64ToImageFile";
 
 const formSchema = z.object({
   alive: z.string(),
@@ -166,12 +164,12 @@ const AddMember = () => {
   const newMember: any = secureLocalStorage.getItem("newmember");
   const [imageFile, setImageFile] = useState<File | null>(null);
   console.log(newMember);
-
+  console.log(secureLocalStorage.getItem("uploadImg"));
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       alive: newMember?.alive || "true",
-      membership: newMember?.membership || "active",
+      membership: newMember?.membershipt || "active",
       avatar: newMember?.avatar || "",
       firstname: newMember?.firstname || "",
       othernames: newMember?.othernames || "",
@@ -356,12 +354,11 @@ const AddMember = () => {
   };
 
   async function onSubmit(values: FormValues) {
-    console.log(imageFile);
     try {
       const formData = new FormData();
       formData.append("avatarfile", avatarFile);
       formData.append("alive", values.alive);
-      formData.append("membership", values.membership);
+      formData.append("membership", values.alive);
       formData.append("firstname", values.firstname);
       formData.append("othernames", values.othernames);
       formData.append("lastname", values.lastname);
@@ -457,6 +454,7 @@ const AddMember = () => {
 
       // Handle success
       console.log("Registration successful");
+
       secureLocalStorage.setItem("newmember", values);
       navigate("/previewaddmember");
       showNotification({

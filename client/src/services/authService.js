@@ -40,7 +40,9 @@ const registerUser = async (data) => {
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      return `${error.response.status} , ${error.response?.data?.message}`;
+      const responseStatus =
+        error.response === undefined ? 500 : error.response.status;
+      return `${responseStatus} , ${error.response?.data?.message}`;
     }
   }
 };
@@ -48,11 +50,12 @@ const registerUser = async (data) => {
 const loginUser = async (data) => {
   try {
     const response = await http.post(`/users/auth/login`, data);
-    console.log(response);
     return response.status;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      return error.response.status;
+      const response =
+        error.response === undefined ? 500 : error.response.status;
+      return response;
     }
   }
 };

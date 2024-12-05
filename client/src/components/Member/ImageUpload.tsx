@@ -51,7 +51,6 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
     ctx.drawImage(videoRef.current, 0, 0);
 
     // Create preview URL for display
-    console.log(dataUrl);
     const dataUrl = canvas.toDataURL("image/jpeg");
 
     // Convert canvas to Blob/File for upload

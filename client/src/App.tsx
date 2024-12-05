@@ -16,7 +16,6 @@ import { isAuthenticated } from "./helpers/auth";
 import PreviewAddMember from "./components/Member/PreviewAddMember";
 import ProtectedRoute from "./components/Auth/ProtectRoute";
 
-console.log(isAuthenticated());
 const App = () => {
   return (
     <Router>

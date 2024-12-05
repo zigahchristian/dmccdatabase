@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-
 import {
   createMember,
   getMembers,
@@ -12,7 +11,7 @@ import fs from "fs";
 import path from "path";
 import sharp from "sharp";
 import { imagepath } from "../../app";
-import { generateId } from "../../helpers";
+import { generateId, saveBase64ToFile } from "../../helpers";
 import csv from "csvtojson";
 
 export const newBulkMemberUpdload = async (req: Request, res: Response) => {
@@ -33,7 +32,16 @@ export const newBulkMemberUpdload = async (req: Request, res: Response) => {
 
 export const newMember = async (req: Request, res: Response) => {
   try {
-    console.log(req.body);
+    const imgpath = path.join(__dirname, "avatar");
+    const { id } = req.params;
+    console.log(req.body, id);
+    const avatarName = saveBase64ToFile(
+      req.body.avatar,
+      imgpath,
+      generateId(16, "avatar")
+    );
+    console.log(imgpath);
+    console.log(avatarName);
     return;
     const {
       first_name,
@@ -88,8 +96,6 @@ export const newMember = async (req: Request, res: Response) => {
       previous_parish,
       associations,
     } = req.body;
-
-    const { id } = req.params;
 
     if (!first_name || !last_name || !gender || !dob) {
       return res.sendStatus(500);

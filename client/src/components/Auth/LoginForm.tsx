@@ -58,8 +58,6 @@ const LoginForm = () => {
     });
   }
 
-  console.log(isAuthenticated());
-
   return isAuthenticated() ? (
     (window.location.href = "/")
   ) : (

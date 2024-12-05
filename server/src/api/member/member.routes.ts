@@ -17,7 +17,7 @@ import { isAuthenticated } from "../../middlewares";
 
 const router = Router();
 
-router.post("/create", newMember);
+router.post("/create/:id", newMember);
 
 router.get("/", isAuthenticated, getAllMembers);
 
