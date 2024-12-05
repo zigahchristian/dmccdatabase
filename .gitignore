@@ -15,6 +15,9 @@ dist-ssr
 .env
 dev.env
 dist/
+*.jpeg
+*.png
+*.jpg
 
 # Editor directories and files
 .vscode/*
