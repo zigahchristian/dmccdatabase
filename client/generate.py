@@ -21,7 +21,7 @@ def generate_random_dob():
 # Function to generate random data
 def generate_random_data():
     alive = ["true","false"]
-    avatar = ["man", "woman", "boy", "girl"]
+    avatar = ["man.jpg", "woman.jpg", "boy.jpg", "girl.jpg"]
     lastnames = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Martinez", "Lee", "Lopez", "Taylor"]
     firstnames = ["John", "Jane", "Michael", "Sarah", "Robert", "Emily", "William", "Jessica", "James", "Anna"]
     days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
@@ -71,12 +71,15 @@ def generate_random_data():
     nameofchildren=random.sample(firstnames, random.randint(1, numberofchildren)) if maritalstatus != "Single" else ""
     yearofbirth= int(random.randint(1950, 2010))
     age= 2024 - yearofbirth
-    dues = []
-    active=random.choice(["active", "inactive"])
+    membership=random.choice(["active", "inactive"])
+    memberid=f"DM{random.randint(1000,9999)}"
+   
     # Set occupation based on the age condition
 
     # Generate random record
     record = {
+        "memberid":memberid,
+        "membership":membership,
         "alive": random.choice(alive),
         "avatar": random.choice(avatar),
         "firstname": random.choice(firstnames),
@@ -88,7 +91,6 @@ def generate_random_data():
         "numberdayofbirth": str(random.randint(1, 28)),
         "monthofbirth": str(random.randint(1, 12)),
         "yearofbirth": yearofbirth,
-        "active":active,
         "age": age,
         "gender": random.choice(genders),
         "mothertongue": random.choice(languages),
@@ -141,7 +143,7 @@ def generate_random_data():
         "spousenationality": random.choice(countries),
         "numberofchildren": numberofchildren,
         "nameofchildren": nameofchildren,
-        "dues":dues
+        "dues":[]
     }
     return record
 

@@ -18,7 +18,7 @@ import {
 const items = [
   {
     title: "Home",
-    url: "/dashboard",
+    url: "/",
     icon: Home,
   },
   {
@@ -30,6 +30,11 @@ const items = [
     title: "Search Member",
     url: "/search",
     icon: Search,
+  },
+  {
+    title: "Add Bulk Members",
+    url: "/addbulkmembers",
+    icon: UserPlus,
   },
 ];
 

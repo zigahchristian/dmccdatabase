@@ -26,7 +26,7 @@ const getTodaysBirthdays = (data: User[]): string[] => {
   // Return an array of names (or any other details you want)
   todaysBirthdays.map((user) =>
     birthdayArray.push({
-      id: `${user.id}`,
+      id: `${user._id}`,
       avatar: `${user.avatar}`,
       firstname: `${user.firstname}`,
       lastname: `${user.lastname}`,

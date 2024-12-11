@@ -47,7 +47,7 @@ export const saveBase64ToFile = (
   // Write the file to the specified folder
   fs.writeFileSync(filePath, buffer);
 
-  return fileName;
+  return `${fileName}.${extension}`;
 };
 
 export const random = () => crypto.randomBytes(128).toString("base64");
@@ -90,7 +90,7 @@ export const generateId = (length: any, text: String) => {
     Math.pow(10, length - 1) +
       Math.random() * (Math.pow(10, length) - Math.pow(10, length - 1) - 1)
   );
-  return `${pretext}_${randInt}`;
+  return `${pretext.toUpperCase()}${randInt}`;
 };
 
 export const deleteUploadedAvatar = (filePath: any) => {

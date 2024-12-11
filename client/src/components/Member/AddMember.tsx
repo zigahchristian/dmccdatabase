@@ -356,7 +356,6 @@ const AddMember = () => {
   };
 
   async function onSubmit(values: FormValues) {
-    console.log(imageFile);
     try {
       const formData = new FormData();
       formData.append("avatarfile", avatarFile);

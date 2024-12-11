@@ -1,6 +1,8 @@
 // Define the TypeScript interface for the user object
 
 interface User {
+  _id: string;
+  memberid: string;
   avatar: string;
   firstname: string;
   othernames: string;
@@ -61,27 +63,25 @@ interface User {
   spousenationality: string;
   numberofchildren: string;
   nameofchildren: string;
-  id: string;
 }
 
 const getSearchResult = (data: User[], query: string): string[] => {
   // Get today's date
   const searchArray = [];
   const searchQuery = query;
-
   // Filter users whose birthday is today
   const searchResult = data.filter(
     (user: User) =>
       user.firstname.toLowerCase() === query.toLowerCase() ||
       user.lastname.toLowerCase() === query.toLowerCase() ||
-      user.id === parseInt(query)
+      user.memberid == query
   );
-
 
   // Return an array of names (or any other details you want)
   searchResult.map((user) =>
     searchArray.push({
-      id: `${user.id}`,
+      _id: `${user._id}`,
+      memberid: `${user.memberid}`,
       avatar: `${user.avatar}`,
       firstname: `${user.firstname}`,
       lastname: `${user.lastname}`,

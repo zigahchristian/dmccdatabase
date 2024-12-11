@@ -27,7 +27,7 @@ app.use("/csv/", express.static(path.join(__dirname, "csvdata")));
 
 app.use(
   cors({
-    origin: "http://localhost",
+    origin: "http://localhost:5173",
     credentials: true,
   })
 );

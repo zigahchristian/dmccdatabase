@@ -29,18 +29,35 @@ const getAllMembers = async () => {
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      return `${error.response.status} , ${error.response?.data?.message}`;
+      const responseStatus =
+        error.response === undefined ? 500 : error.response.status;
+      return `${responseStatus} , ${error.response?.data?.message}`;
     }
   }
 };
 
-const addMember = async (data, id) => {
+const addMember = async (data) => {
   try {
-    const response = await http.post(`/members/create/${id}`, data);
-    return response.data;
+    const response = await http.post(`/members/create`, data);
+    return response.status;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      return `${error.response.status} , ${error.response?.data?.message}`;
+      const responseStatus =
+        error.response === undefined ? 500 : error.response.status;
+      return `${responseStatus} , ${error.response?.data?.message}`;
+    }
+  }
+};
+
+const addBulkMembers = async (data) => {
+  try {
+    const response = await http.get(`/members/newBulkMembersUpload`, data);
+    return response.status;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const responseStatus =
+        error.response === undefined ? 500 : error.response.status;
+      return `${responseStatus} , ${error.response?.data?.message}`;
     }
   }
 };
@@ -81,6 +98,7 @@ const logout = async () => {
 
 const MemberService = {
   addMember,
+  addBulkMembers,
   getAllUsers,
   getAllMembers,
 };

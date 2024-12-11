@@ -1,5 +1,4 @@
 import { Router, Response, Request } from "express";
-import members from "../db/data.json";
 const router = Router();
 
 import usersRoutes from "../api/users/users.routes";
@@ -9,10 +8,6 @@ import duesRoutes from "../api/dues/dues.routes";
 
 router.get("/", (req: Request, res: Response) => {
   return res.status(200).json({ message: "Landed Well !" });
-});
-
-router.get("/members", (req: Request, res: Response) => {
-  return res.status(200).send(members);
 });
 
 //Users Routes

@@ -17,7 +17,7 @@ import { isAuthenticated } from "../../middlewares";
 
 const router = Router();
 
-router.post("/create/:id", newMember);
+router.post("/create", newMember);
 
 router.get("/", isAuthenticated, getAllMembers);
 
@@ -43,7 +43,7 @@ router.patch(
 
 router.post(
   "/newBulkMembersUpload",
-  csvuploads.single("member"),
+  csvuploads.single("members"),
   newBulkMemberUpdload
 );
 

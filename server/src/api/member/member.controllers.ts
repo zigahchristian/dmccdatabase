@@ -13,16 +13,15 @@ import sharp from "sharp";
 import { imagepath } from "../../app";
 import { generateId, saveBase64ToFile } from "../../helpers";
 import csv from "csvtojson";
+const imgpath = "/app/src/avatar";
 
 export const newBulkMemberUpdload = async (req: Request, res: Response) => {
   try {
-    console.log(req?.file);
-    const csvData = await csv().fromString(req?.file.buffer.toString()); //(`${csvpath}/bulkmembers.csv`);
+    const csvData = await csv().fromString(req?.file.buffer.toString());
 
     for (let i = 0; i < csvData.length; i++) {
       const newmember = csvData[i];
       await createMember(newmember);
-      console.log(`${i} member created`);
     }
     res.status(200).json({ msg: "Success" });
   } catch (e) {
@@ -32,72 +31,9 @@ export const newBulkMemberUpdload = async (req: Request, res: Response) => {
 
 export const newMember = async (req: Request, res: Response) => {
   try {
-    const imgpath = path.join(__dirname, "avatar");
-    const { id } = req.params;
-    console.log(req.body, id);
-    const avatarName = saveBase64ToFile(
-      req.body.avatar,
-      imgpath,
-      generateId(16, "avatar")
-    );
-    console.log(imgpath);
-    console.log(avatarName);
-    return;
-    const {
-      first_name,
-      last_name,
-      other_names,
-      dob,
-      gender,
-      email,
-      phone1,
-      phone2,
-      country,
-      avatar,
-      dayborn,
-      digital_address,
-      location,
-      hometown,
-      hometown_region,
-      education_qualifications,
-      occupations,
-      place_of_work,
-      occupation_status,
-      other_skills,
-      baptised,
-      officiating_minister,
-      b_place_of_baptism,
-      b_date_of_baptism,
-      nlb,
-      god_parent,
-      first_communion,
-      fc_officiating_minister,
-      place_of_first_communion,
-      date_of_first_communion,
-      nlc,
-      fc_god_parent,
-      confirmed,
-      c_officiating_minister,
-      place_of_confirmation,
-      date_of_confirmation,
-      nlconf,
-      c_god_parent,
-      married,
-      hm_officiating_minister,
-      type_of_marriage,
-      hm_place_of_confirmation,
-      hm_date_of_confirmation,
-      nlm,
-      name_of_spouse,
-      spouse_nationality,
-      spouse_religious_demomination,
-      number_of_children,
-      hm_god_parent,
-      previous_parish,
-      associations,
-    } = req.body;
+    const { firstname, othernames, lastname, gender } = req.body;
 
-    if (!first_name || !last_name || !gender || !dob) {
+    if (!firstname || !lastname || !gender || !othernames) {
       return res.sendStatus(500);
     }
 
@@ -107,60 +43,83 @@ export const newMember = async (req: Request, res: Response) => {
       return res.status(400).json({ msg: "Not a registered User" });
     }
 
+    const newId = generateId(4, "dm");
+
     const member = await createMember({
-      first_name,
-      last_name,
-      other_names,
-      dob,
-      gender,
-      email,
-      phone1,
-      phone2,
-      country,
-      avatar,
-      dayborn,
-      digital_address,
-      location,
-      hometown,
-      hometown_region,
-      education_qualifications,
-      occupations,
-      place_of_work,
-      occupation_status,
-      other_skills,
-      baptised,
-      officiating_minister,
-      b_place_of_baptism,
-      b_date_of_baptism,
-      nlb,
-      god_parent,
-      first_communion,
-      fc_officiating_minister,
-      place_of_first_communion,
-      date_of_first_communion,
-      nlc,
-      fc_god_parent,
-      confirmed,
-      c_officiating_minister,
-      place_of_confirmation,
-      date_of_confirmation,
-      nlconf,
-      c_god_parent,
-      married,
-      hm_officiating_minister,
-      type_of_marriage,
-      hm_place_of_confirmation,
-      hm_date_of_confirmation,
-      nlm,
-      name_of_spouse,
-      spouse_nationality,
-      spouse_religious_demomination,
-      number_of_children,
-      hm_god_parent,
-      previous_parish,
-      associations,
+      alive: req.body.alive,
+      membership: req.body.membership,
+      memberid: newId,
+      avatar: req.body.avatar
+        ? saveBase64ToFile(req.body.avatar, imgpath, newId)
+        : "avatar.png",
+      firstname: req.body.firstname,
+      othernames: req.body.othernames,
+      lastname: req.body.lastname,
+      dayofbirth: req.body.dayofbirth,
+      numberdayofbirth: req.body.numberdayofbirth,
+      monthofbirth: req.body.monthofbirth,
+      yearofbirth: req.body.yearofbirth,
+      gender: req.body.gender,
+      mothertongue: req.body.mothertongue,
+      placeofbirth: req.body.placeofbirth,
+      hometown: req.body.hometown,
+      fathersname: req.body.fathersname,
+      mothersname: req.body.mothersname,
+      country: req.body.country,
+      email: req.body.email,
+      emergencycontact: req.body.emergencycontact,
+      phonenumber1: req.body.phonenumber1,
+      phonenumber2: req.body.phonenumber2,
+      digitaladdress: req.body.digitaladdress,
+      city: req.body.city,
+      landmark: req.body.landmark,
+      education: req.body.education,
+      otherlanguages: req.body.otherlanguages,
+      skills: req.body.skills,
+      occupationstatus: req.body.occupationstatus,
+      occupation: req.body.occupation,
+      placeofwork: req.body.placeofwork,
+      nameofschool: req.body.nameofschool,
+      previousparish: req.body.previousparish,
+      previousassociations: req.body.previousassociations,
+      currentassociations: req.body.currentassociations,
+      baptised: req.body.baptised,
+      baptised_officiatingminister: req.body.baptised_officiatingminister,
+      baptised_placeofbaptism: req.body.baptised_placeofbaptism,
+      baptised_datebaptism: req.body.baptised_datebaptism,
+      baptised_nlb: req.body.baptised_nlb,
+      baptised_godparent: req.body.baptised_godparent,
+      firstcommunion: req.body.firstcommunion,
+      firstcommunion_officiatingminister:
+        req.body.firstcommunion_officiatingminister,
+      firstcommunion_placeoffirstcommunion:
+        req.body.firstcommunion_placeoffirstcommunion,
+      firstcommunion_datefirstcommunion:
+        req.body.firstcommunion_datefirstcommunion,
+      firstcommunion_nlc: req.body.firstcommunion_nlc,
+      firstcommunion_godparent: req.body.firstcommunion_godparent,
+      confirmed: req.body.confirmed,
+      confirmed_officiatingminister: req.body.confirmed_officiatingminister,
+      confirmed_placeofconfirmation: req.body.confirmed_placeofconfirmation,
+      confirmed_datefconfirmation: req.body.confirmed_datefconfirmation,
+      confirmed_nlconf: req.body.confirmed_nlconf,
+      confirmed_godparent: req.body.confirmed_godparent,
+      maritalstatus: req.body.maritalstatus,
+      married_officiatingminister: req.body.married_officiatingminister,
+      married_placeofholymatrimony: req.body.married_placeofholymatrimony,
+      married_dateofholymatrimony: req.body.married_dateofholymatrimony,
+      married_nlm: req.body.married_nlm,
+      married_godparent: req.body.married_godparent,
+      nameofspouse: req.body.nameofspouse,
+      spousedenomination: req.body.spousedenomination,
+      spousenationality: req.body.spousenationality,
+      numberofchildren: req.body.numberofchildren,
+      nameofchildren: req.body.nameofchildren,
+      dues: req.body.dues,
       created_by: enteredByUser,
     });
+
+    console.log(member);
 
     return res
       .status(200)

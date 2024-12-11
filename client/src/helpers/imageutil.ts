@@ -15,12 +15,12 @@ export async function compressImage(
 
         // Maintain aspect ratio while resizing
         if (width > height) {
-          if (width > 1200) {
+          if (width > 300) {
             height = Math.round((height * 300) / width);
             width = 300;
           }
         } else {
-          if (height > 1200) {
+          if (height > 300) {
             width = Math.round((width * 300) / height);
             height = 300;
           }

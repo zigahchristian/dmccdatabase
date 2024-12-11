@@ -10,16 +10,16 @@ import {
 } from "../ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { ImageUpload } from "./ImageUpload";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import secureLocalStorage from "react-secure-storage";
 import MemberService from "../../services/memberService";
 import { AuthContext } from "../../contexts/AuthContext";
-import base64ToImageFile from "../../helpers/base64ToImageFile";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { useNotification } from "@/contexts/NotificationContext";
 
 const PreviewAddMember = () => {
   const newmember: any = secureLocalStorage.getItem("newmember");
+  const { showNotification } = useNotification();
+  const navigate = useNavigate();
   const { authUser } = useContext(AuthContext);
   console.log(newmember);
   const formSchema = z.object({
@@ -220,9 +220,19 @@ const PreviewAddMember = () => {
   });
 
   async function onSubmit(values: FormValues) {
-    const response = await MemberService.addMember(values, authUser._id);
-    console.log(resonse);
-    return;
+    const res = await MemberService.addMember(values);
+    if (res === 200 || res === 304) {
+      navigate("/", { replace: true });
+      return showNotification({
+        message: "Adding new member was Successful!",
+        type: "success",
+      });
+    }
+
+    return showNotification({
+      message: "Adding Member Failed - Please Try Again later",
+      type: "error",
+    });
   }
 
   return (

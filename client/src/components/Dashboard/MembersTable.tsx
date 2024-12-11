@@ -2,6 +2,7 @@ import React, { useState, useContext } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { MemberContext } from "../../contexts/MemberContext";
+import { serverName } from "@/helpers/http-common";
 
 import { Badge } from "../ui/badge";
 
@@ -22,12 +23,12 @@ const MembersTable = () => {
       <div className="overflow-x-auto">
         <table className="w-full">
           <tbody className="divide-y divide-gray-200">
-            {currentmembers.map((member) => (
-              <tr key={member.id} className="hover:bg-gray-50">
+            {currentmembers.map((member, index) => (
+              <tr key={index} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center gap-3">
                     <img
-                      src={`src/assets/${member?.avatar}.jpg`}
+                      src={`${serverName}/static/${member?.avatar}`}
                       alt={member.name}
                       className="w-10 h-10 rounded-full"
                     />
@@ -78,7 +79,7 @@ const MembersTable = () => {
                   <div className="flex flex-wrap gap-1">
                     {member.skills.slice(0, 2).map((skill, index) => (
                       <Badge
-                        key={skill}
+                        key={index}
                         variant="secondary"
                         className="text-xs"
                       >
@@ -101,7 +102,7 @@ const MembersTable = () => {
                 </td>
 
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <Link to={`/viewmember/${member?.id}`}>
+                  <Link to={`/viewmember/${member?._id}`}>
                     <button className="bg-[#02424240] hover:bg-blue-700 text-white font-bold py-2 px-4 text-sm rounded-md">
                       {" "}
                       View More Info

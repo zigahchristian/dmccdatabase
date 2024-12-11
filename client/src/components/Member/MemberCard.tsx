@@ -2,6 +2,7 @@ import React from "react";
 import memberBackdrop from "../../assets/member_backdrop.jpg";
 import { Button } from "../ui/button";
 import { Link } from "react-router-dom";
+import { serverName } from "@/helpers/http-common";
 
 // Define the TypeScript interface for the user object
 interface User {
@@ -86,7 +87,7 @@ const MemberCard: React.FC<UserCardProps> = ({ user }) => {
       <div className=" h-32 overflow-hidden">
         <img
           className="object-cover object-top w-full"
-          src={memberBackdrop}
+          src={`${serverName}/static/member_backdrop.jpg`}
           alt="memberBackdrop"
         />
       </div>
@@ -94,7 +95,7 @@ const MemberCard: React.FC<UserCardProps> = ({ user }) => {
       <div className="mx-auto w-32 h-32 relative -mt-16 border-4 rounded-full border-white overflow-hidden">
         <img
           className="object-cover object-center h-42 w-32"
-          src={`/src/assets/${user.avatar}.jpg`}
+          src={`${serverName}/static/${user.avatar}`}
           alt={user.firstname}
         />
       </div>
@@ -507,10 +508,10 @@ const MemberCard: React.FC<UserCardProps> = ({ user }) => {
           Print Member Details
         </Button>
 
-        <Link to={`/editmember/${user?.id}`}>
+        <Link to={`/editmember/${user?._id}`}>
           <Button className="bg-orange-600 w-50">Update Member</Button>
         </Link>
-        <Link to={`/makepayment/${user?.id}`}>
+        <Link to={`/makepayment/${user?._id}`}>
           <Button className="bg-blue-600 w-50">Make Payment</Button>
         </Link>
         <Button className="bg-red-700 w-50">Delete</Button>
