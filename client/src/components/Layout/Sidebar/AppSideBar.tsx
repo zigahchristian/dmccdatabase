@@ -1,5 +1,11 @@
 import React from "react";
-import { Home, UserPlus, Search, Settings, Wallet } from "lucide-react";
+import {
+  Home,
+  UserPlus,
+  Search,
+  UserCircle2,
+  UserSquareIcon,
+} from "lucide-react";
 
 import {
   Sidebar,
@@ -27,6 +33,11 @@ const items = [
     icon: UserPlus,
   },
   {
+    title: "Update Member Image",
+    url: "/updatememberimage",
+    icon: UserSquareIcon,
+  },
+  {
     title: "Search Member",
     url: "/search",
     icon: Search,
@@ -34,7 +45,7 @@ const items = [
   {
     title: "Add Bulk Members",
     url: "/addbulkmembers",
-    icon: UserPlus,
+    icon: UserCircle2,
   },
 ];
 

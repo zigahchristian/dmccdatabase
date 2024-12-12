@@ -3,7 +3,7 @@ import axios from "axios";
 
 const getSession = async () => {
   try {
-    const response = await http.get(`/users/getsession`);
+    const response = await http.get(`users/getsession`);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -25,7 +25,7 @@ const getAllUsers = async () => {
 
 const getAllMembers = async () => {
   try {
-    const response = await http.get(`/members/`);
+    const response = await http.get(`members/`);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -36,7 +36,7 @@ const getAllMembers = async () => {
 
 const registerUser = async (data) => {
   try {
-    const response = await http.post(`/users/auth/register`, data);
+    const response = await http.post(`users/auth/register`, data);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -49,7 +49,7 @@ const registerUser = async (data) => {
 
 const loginUser = async (data) => {
   try {
-    const response = await http.post(`/users/auth/login`, data);
+    const response = await http.post(`users/auth/login`, data);
     return response.status;
   } catch (error) {
     if (axios.isAxiosError(error)) {

@@ -43,15 +43,14 @@ export const newMember = async (req: Request, res: Response) => {
       return res.status(400).json({ msg: "Not a registered User" });
     }
 
-    const newId = generateId(4, "dm");
-
     const member = await createMember({
       alive: req.body.alive,
       membership: req.body.membership,
       memberid: newId,
-      avatar: req.body.avatar
-        ? saveBase64ToFile(req.body.avatar, imgpath, newId)
-        : "avatar.png",
+      avatar:
+        req.body.avatar.lenght > 15
+          ? saveBase64ToFile(req.body.avatar, imgpath, newId)
+          : "avatar.png",
       firstname: req.body.firstname,
       othernames: req.body.othernames,
       lastname: req.body.lastname,

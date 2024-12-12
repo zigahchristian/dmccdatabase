@@ -31,8 +31,6 @@ import { X, CalendarIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useNotification } from "../../contexts/NotificationContext";
 import secureLocalStorage from "react-secure-storage";
-console.log(secureLocalStorage.getItem("uploadImg"));
-import base64ToImageFile from "../../helpers/base64ToImageFile";
 
 const formSchema = z.object({
   alive: z.string(),
@@ -164,8 +162,6 @@ const AddMember = () => {
   const navigate = useNavigate();
   const { showNotification } = useNotification();
   const newMember: any = secureLocalStorage.getItem("newmember");
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  console.log(newMember);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -358,7 +354,7 @@ const AddMember = () => {
   async function onSubmit(values: FormValues) {
     try {
       const formData = new FormData();
-      formData.append("avatarfile", avatarFile);
+      formData.append("avatar", avatarFile);
       formData.append("alive", values.alive);
       formData.append("membership", values.membership);
       formData.append("firstname", values.firstname);
@@ -456,7 +452,7 @@ const AddMember = () => {
 
       // Handle success
       console.log("Registration successful");
-      secureLocalStorage.setItem("newmember", values);
+      secureLocalStorage.setItem("currentMember", values);
       navigate("/previewaddmember");
       showNotification({
         message: "Proceed to Preview Details & Submit",
@@ -466,7 +462,6 @@ const AddMember = () => {
       console.error("Registration error:", error);
     }
   }
-
   return (
     <div className="w-full m-2 mx-auto p-4">
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">

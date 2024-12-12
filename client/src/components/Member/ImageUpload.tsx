@@ -158,10 +158,10 @@ export function ImageUpload({
       ) : (
         <>
           <Avatar
-            className="cursor-pointer hover:opacity-90 transition-opacity"
+            className="cursor-pointer hover:opacity-90 transition-opacity h-[4rem] w-[4rem]"
             onClick={() => !disabled && fileRef.current?.click()}
           >
-            <AvatarImage src={value} className="h-30" />
+            <AvatarImage src={value} />
             <AvatarFallback>
               <User className="w-12 h-12 text-gray-400" />
             </AvatarFallback>

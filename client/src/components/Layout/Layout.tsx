@@ -9,12 +9,6 @@ import Logo from "../../assets/dmcc.png";
 
 const Layout = () => {
   const { members } = useContext(MemberContext);
-  console.log(members);
-  if (members.length === 0) {
-    console.log("Loading Members");
-  } else {
-    console.log("Members Loaded");
-  }
   return members.length === 0 ? (
     <Loading logoUrl={Logo} />
   ) : (

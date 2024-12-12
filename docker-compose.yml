@@ -12,7 +12,7 @@ services:
       - database-v:/data/db
     networks:
       - dmcc-network
-      
+
   api:
     container_name: "dmccserver"
     build:
@@ -29,9 +29,7 @@ services:
       - ./server/src/.env
     networks:
       - dmcc-network
-    
-    
-     
+
   client:
     container_name: "dmccclient"
     build:
@@ -60,10 +58,6 @@ services:
     depends_on:
       - api
       - client
-   
-
-
-
 
 volumes:
   dmccserver-node-modules:

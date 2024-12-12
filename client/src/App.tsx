@@ -5,6 +5,7 @@ import { AuthContext } from "./contexts/AuthContext";
 import AuthService from "./services/authService";
 import MemberService from "./services/memberService";
 import getError from "./helpers/getError";
+import secureLocalStorage from "react-secure-storage";
 
 // Components
 import Layout from "./components/Layout/Layout";
@@ -13,6 +14,8 @@ import AddMember from "./components/Member/AddMember";
 import EditMember from "./components/Member/EditMember";
 import ViewMember from "./components/Member/ViewMember";
 import MakePayment from "./components/Payment/MakePayment";
+import UpdateMemberImage from "./components/Member/UpdateMemberImage";
+import UpdateImage from "./components/Member/updateimage";
 import SearchMember from "./components/Search/Search";
 import NotFound from "./components/NotFound/NotFound";
 import BulkMemberUpload from "./components/Member/BulkMemberUpload";
@@ -21,7 +24,6 @@ import RegisterForm from "./components/Auth/RegisterForm";
 import { isAuthenticated } from "./helpers/auth";
 import PreviewAddMember from "./components/Member/PreviewAddMember";
 import ProtectedRoute from "./components/Auth/ProtectRoute";
-import secureLocalStorage from "react-secure-storage";
 
 const App = () => {
   const { dispatch } = useContext(MemberContext);
@@ -42,7 +44,6 @@ const App = () => {
       try {
         const authuser = await AuthService.getSession();
         secureLocalStorage.setItem("authUser", authuser);
-        console.log(authuser);
         authDispatch({ type: "FETCH_SUCCESS", payload: authuser.authUser });
       } catch (error) {
         authDispatch({ type: "FETCH_FAILED", payload: getError(error) });
@@ -61,6 +62,8 @@ const App = () => {
           <Route element={<Layout />}>
             <Route path="/addmember" element={<AddMember />} />
             <Route path="/addbulkmembers" element={<BulkMemberUpload />} />
+            <Route path="/updatememberimage" element={<UpdateMemberImage />} />
+            <Route path="/updateimage/:id" element={<UpdateImage />} />
             <Route path="/previewaddmember" element={<PreviewAddMember />} />
             <Route path="/viewmember/:id" element={<ViewMember />} />
             <Route path="/editmember/:id" element={<EditMember />} />

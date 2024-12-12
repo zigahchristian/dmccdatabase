@@ -3,7 +3,7 @@ import axios from "axios";
 
 const getSession = async () => {
   try {
-    const response = await http.get(`/users/getsession`);
+    const response = await http.get(`users/getsession`);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -14,7 +14,7 @@ const getSession = async () => {
 
 const getAllUsers = async () => {
   try {
-    const response = await http.get(`/users/`);
+    const response = await http.get(`users/`);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -25,7 +25,7 @@ const getAllUsers = async () => {
 
 const getAllMembers = async () => {
   try {
-    const response = await http.get(`/members/`);
+    const response = await http.get(`members/`);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -38,7 +38,20 @@ const getAllMembers = async () => {
 
 const addMember = async (data) => {
   try {
-    const response = await http.post(`/members/create`, data);
+    const response = await http.post(`members/create`, data);
+    return response.status;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const responseStatus =
+        error.response === undefined ? 500 : error.response.status;
+      return `${responseStatus} , ${error.response?.data?.message}`;
+    }
+  }
+};
+
+const updateMember = async (data, id) => {
+  try {
+    const response = await http.patch(`members/${id}`, data);
     return response.status;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -51,7 +64,7 @@ const addMember = async (data) => {
 
 const addBulkMembers = async (data) => {
   try {
-    const response = await http.get(`/members/newBulkMembersUpload`, data);
+    const response = await http.get(`members/newBulkMembersUpload`, data);
     return response.status;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -64,7 +77,7 @@ const addBulkMembers = async (data) => {
 
 const loginUser = async (data) => {
   try {
-    const response = await http.post(`/users/auth/login`, data);
+    const response = await http.post(`users/auth/login`, data);
     console.log(response.status);
     return response.status;
   } catch (error) {

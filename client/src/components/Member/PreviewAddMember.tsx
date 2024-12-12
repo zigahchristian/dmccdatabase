@@ -15,13 +15,13 @@ import secureLocalStorage from "react-secure-storage";
 import MemberService from "../../services/memberService";
 import { AuthContext } from "../../contexts/AuthContext";
 import { useNotification } from "@/contexts/NotificationContext";
+import { serverName } from "@/helpers/http-common";
 
 const PreviewAddMember = () => {
-  const newmember: any = secureLocalStorage.getItem("newmember");
+  const currentMember: any = secureLocalStorage.getItem("currentMember");
   const { showNotification } = useNotification();
   const navigate = useNavigate();
-  const { authUser } = useContext(AuthContext);
-  console.log(newmember);
+  console.log(currentMember);
   const formSchema = z.object({
     alive: z.string(),
     avatar: z.string().optional(),
@@ -144,78 +144,81 @@ const PreviewAddMember = () => {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      alive: newmember?.alive || "true",
-      avatar: newmember?.avatar || "",
-      firstname: newmember?.firstname || "",
-      othernames: newmember?.othernames || "",
-      lastname: newmember?.lastname || "",
-      dayofbirth: newmember?.dayofbirth || "",
-      numberdayofbirth: newmember?.numberdayofbirth || "",
-      monthofbirth: newmember?.monthofbirth || "",
-      yearofbirth: newmember?.yearofbirth || "",
-      gender: newmember?.gender || "",
-      active: newmember?.active || "active",
-      mothertongue: newmember?.mothertongue || "",
-      placeofbirth: newmember?.placeofbirth || "",
-      hometown: newmember?.hometown || "",
-      fathersname: newmember?.fathersname || "",
-      mothersname: newmember?.mothersname || "",
-      country: newmember?.country || "",
-      email: newmember?.email || "",
-      emergencycontact: newmember?.emergencycontact || "",
-      phonenumber1: newmember?.phonenumber1 || "",
-      phonenumber2: newmember?.phonenumber2 || "",
-      digitaladdress: newmember?.digitaladdress || "",
-      city: newmember?.city || "",
-      landmark: newmember?.landmark || "",
-      education: newmember?.education || "",
-      otherlanguages: newmember?.otherlanguages || [],
-      skills: newmember?.skills || [],
+      alive: currentMember?.alive || "true",
+      avatar: currentMember?.avatar || "",
+      firstname: currentMember?.firstname || "",
+      othernames: currentMember?.othernames || "",
+      lastname: currentMember?.lastname || "",
+      dayofbirth: currentMember?.dayofbirth || "",
+      numberdayofbirth: currentMember?.numberdayofbirth || "",
+      monthofbirth: currentMember?.monthofbirth || "",
+      yearofbirth: currentMember?.yearofbirth || "",
+      gender: currentMember?.gender || "",
+      active: currentMember?.active || "active",
+      mothertongue: currentMember?.mothertongue || "",
+      placeofbirth: currentMember?.placeofbirth || "",
+      hometown: currentMember?.hometown || "",
+      fathersname: currentMember?.fathersname || "",
+      mothersname: currentMember?.mothersname || "",
+      country: currentMember?.country || "",
+      email: currentMember?.email || "",
+      emergencycontact: currentMember?.emergencycontact || "",
+      phonenumber1: currentMember?.phonenumber1 || "",
+      phonenumber2: currentMember?.phonenumber2 || "",
+      digitaladdress: currentMember?.digitaladdress || "",
+      city: currentMember?.city || "",
+      landmark: currentMember?.landmark || "",
+      education: currentMember?.education || "",
+      otherlanguages: currentMember?.otherlanguages || [],
+      skills: currentMember?.skills || [],
       occupationstatus:
-        newmember?.occupationstatus || "Choose Employment Stats",
-      occupation: newmember?.occupation || "",
-      placeofwork: newmember?.placeofwork || "",
-      nameofschool: newmember?.nameofschool || "",
-      previousparish: newmember?.previousparish || "",
-      previousassociations: newmember?.previousassociations || [],
-      currentassociations: newmember?.currentassociations || [],
-      baptised: newmember?.baptised || "No",
+        currentMember?.occupationstatus || "Choose Employment Stats",
+      occupation: currentMember?.occupation || "",
+      placeofwork: currentMember?.placeofwork || "",
+      nameofschool: currentMember?.nameofschool || "",
+      previousparish: currentMember?.previousparish || "",
+      previousassociations: currentMember?.previousassociations || [],
+      currentassociations: currentMember?.currentassociations || [],
+      baptised: currentMember?.baptised || "No",
       baptised_officiatingminister:
-        newmember?.baptised_officiatingminister || "",
-      baptised_placeofbaptism: newmember?.baptised_placeofbaptism || "",
-      baptised_datebaptism: newmember?.baptised_datebaptism || "",
-      baptised_nlb: newmember?.baptised_nlb || "",
-      baptised_godparent: newmember?.baptised_godparent || "",
-      firstcommunion: newmember?.firstcommunion || "No",
+        currentMember?.baptised_officiatingminister || "",
+      baptised_placeofbaptism: currentMember?.baptised_placeofbaptism || "",
+      baptised_datebaptism: currentMember?.baptised_datebaptism || "",
+      baptised_nlb: currentMember?.baptised_nlb || "",
+      baptised_godparent: currentMember?.baptised_godparent || "",
+      firstcommunion: currentMember?.firstcommunion || "No",
       firstcommunion_officiatingminister:
-        newmember?.firstcommunion_officiatingminister || "",
+        currentMember?.firstcommunion_officiatingminister || "",
       firstcommunion_placeoffirstcommunion:
-        newmember?.firstcommunion_placeoffirstcommunion || "",
+        currentMember?.firstcommunion_placeoffirstcommunion || "",
       firstcommunion_datefirstcommunion:
-        newmember?.firstcommunion_datefirstcommunion || "",
-      firstcommunion_nlc: newmember?.firstcommunion_nlc || "",
-      firstcommunion_godparent: newmember?.firstcommunion_godparent || "",
-      confirmed: newmember?.confirmed || "No",
+        currentMember?.firstcommunion_datefirstcommunion || "",
+      firstcommunion_nlc: currentMember?.firstcommunion_nlc || "",
+      firstcommunion_godparent: currentMember?.firstcommunion_godparent || "",
+      confirmed: currentMember?.confirmed || "No",
       confirmed_officiatingminister:
-        newmember?.confirmed_officiatingminister || "",
+        currentMember?.confirmed_officiatingminister || "",
       confirmed_placeofconfirmation:
-        newmember?.confirmed_placeofconfirmation || "",
-      confirmed_datefconfirmation: newmember?.confirmed_datefconfirmation || "",
-      confirmed_nlconf: newmember?.confirmed_nlconf || "",
-      confirmed_godparent: newmember?.confirmed_godparent || "",
-      maritalstatus: newmember?.maritalstatus || "Single",
-      married_officiatingminister: newmember?.married_officiatingminister || "",
+        currentMember?.confirmed_placeofconfirmation || "",
+      confirmed_datefconfirmation:
+        currentMember?.confirmed_datefconfirmation || "",
+      confirmed_nlconf: currentMember?.confirmed_nlconf || "",
+      confirmed_godparent: currentMember?.confirmed_godparent || "",
+      maritalstatus: currentMember?.maritalstatus || "Single",
+      married_officiatingminister:
+        currentMember?.married_officiatingminister || "",
       married_placeofholymatrimony:
-        newmember?.married_placeofholymatrimony || "",
-      married_dateofholymatrimony: newmember?.married_dateofholymatrimony || "",
-      married_nlm: newmember?.married_nlm || "",
-      married_godparent: newmember?.married_godparent || "",
-      nameofspouse: newmember?.nameofspouse || "",
-      spousedenomination: newmember?.spousedenomination || "",
-      spousenationality: newmember?.spousenationality || "",
-      numberofchildren: newmember?.numberofchildren || "",
-      nameofchildren: newmember?.nameofchildren || [],
-      dues: newmember?.dues || [],
+        currentMember?.married_placeofholymatrimony || "",
+      married_dateofholymatrimony:
+        currentMember?.married_dateofholymatrimony || "",
+      married_nlm: currentMember?.married_nlm || "",
+      married_godparent: currentMember?.married_godparent || "",
+      nameofspouse: currentMember?.nameofspouse || "",
+      spousedenomination: currentMember?.spousedenomination || "",
+      spousenationality: currentMember?.spousenationality || "",
+      numberofchildren: currentMember?.numberofchildren || "",
+      nameofchildren: currentMember?.nameofchildren || [],
+      dues: currentMember?.dues || [],
     },
   });
 
@@ -223,6 +226,7 @@ const PreviewAddMember = () => {
     const res = await MemberService.addMember(values);
     if (res === 200 || res === 304) {
       navigate("/", { replace: true });
+      secureLocalStorage.removeItem("currentMember");
       return showNotification({
         message: "Adding new member was Successful!",
         type: "success",
@@ -255,7 +259,10 @@ const PreviewAddMember = () => {
               render={({ field }) => (
                 <FormItem className="flex flex-col items-center">
                   <FormControl>
-                    <img src={newmember.avatar} className="h-36 w-36" />
+                    <img
+                      src={`${serverName}/static/${currentMember.avatar}`}
+                      className="h-36 w-36"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -266,7 +273,7 @@ const PreviewAddMember = () => {
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                   <dt className="text-sm font-medium text-gray-500">Alive</dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.alive}
+                    {currentMember?.alive}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -274,7 +281,7 @@ const PreviewAddMember = () => {
                     Membership
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.membership}
+                    {currentMember?.membership}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -282,7 +289,7 @@ const PreviewAddMember = () => {
                     First Name
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.firstname}
+                    {currentMember?.firstname}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -290,7 +297,7 @@ const PreviewAddMember = () => {
                     Last Name
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.lastname}
+                    {currentMember?.lastname}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -298,13 +305,13 @@ const PreviewAddMember = () => {
                     Other Names
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.othernames}
+                    {currentMember?.othernames}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                   <dt className="text-sm font-medium text-gray-500">Gender</dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.gender}
+                    {currentMember?.gender}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -312,8 +319,9 @@ const PreviewAddMember = () => {
                     Date of Birth
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.dayofbirth} {newmember?.numberdayofbirth}-
-                    {newmember?.monthofbirth}-{newmember?.yearofbirth}
+                    {currentMember?.dayofbirth}{" "}
+                    {currentMember?.numberdayofbirth}-
+                    {currentMember?.monthofbirth}-{currentMember?.yearofbirth}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -321,7 +329,7 @@ const PreviewAddMember = () => {
                     Mother Tongue
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.mothertongue}
+                    {currentMember?.mothertongue}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -329,7 +337,7 @@ const PreviewAddMember = () => {
                     Hometown
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.hometown}
+                    {currentMember?.hometown}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -337,7 +345,7 @@ const PreviewAddMember = () => {
                     Place of Birth
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.placeofbirth}
+                    {currentMember?.placeofbirth}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -345,7 +353,7 @@ const PreviewAddMember = () => {
                     Fathers Name
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.fathersname}
+                    {currentMember?.fathersname}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -353,7 +361,7 @@ const PreviewAddMember = () => {
                     Mother's Name
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.mothersname}
+                    {currentMember?.mothersname}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -361,13 +369,13 @@ const PreviewAddMember = () => {
                     Emergency Contact
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.emergencycontact}
+                    {currentMember?.emergencycontact}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                   <dt className="text-sm font-medium text-gray-500">Country</dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.country}
+                    {currentMember?.country}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -375,7 +383,7 @@ const PreviewAddMember = () => {
                     Phone Number 1 - WhatsApp
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.phonenumber1}
+                    {currentMember?.phonenumber1}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -383,13 +391,13 @@ const PreviewAddMember = () => {
                     Phone Number 2
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.phonenumber2}
+                    {currentMember?.phonenumber2}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                   <dt className="text-sm font-medium text-gray-500">Email</dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.email}
+                    {currentMember?.email}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -397,14 +405,14 @@ const PreviewAddMember = () => {
                     Education
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.education}
+                    {currentMember?.education}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                   <dt className="text-sm font-medium text-gray-500">Skills</dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.skills.length > 0
-                      ? newmember?.skills.join(", ")
+                    {currentMember?.skills.length > 0
+                      ? currentMember?.skills.join(", ")
                       : "None"}
                   </dd>
                 </div>
@@ -413,8 +421,8 @@ const PreviewAddMember = () => {
                     Other Languages
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.otherlanguages.length > 0
-                      ? newmember?.otherlanguages.join("  ,  ")
+                    {currentMember?.otherlanguages.length > 0
+                      ? currentMember?.otherlanguages.join("  ,  ")
                       : "None"}
                   </dd>
                 </div>
@@ -423,7 +431,7 @@ const PreviewAddMember = () => {
                     Occupation Status
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.occupationstatus}
+                    {currentMember?.occupationstatus}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -431,7 +439,7 @@ const PreviewAddMember = () => {
                     Occupation
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.occupation}
+                    {currentMember?.occupation}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -439,7 +447,7 @@ const PreviewAddMember = () => {
                     Place of Work
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.placeofwork}
+                    {currentMember?.placeofwork}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -447,7 +455,7 @@ const PreviewAddMember = () => {
                     Previous Parish
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.previousparish}
+                    {currentMember?.previousparish}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -455,8 +463,8 @@ const PreviewAddMember = () => {
                     Previous Associations
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.previousassociations.length > 0
-                      ? newmember?.previousassociations.join("  ,  ")
+                    {currentMember?.previousassociations.length > 0
+                      ? currentMember?.previousassociations.join("  ,  ")
                       : "None"}
                   </dd>
                 </div>
@@ -465,8 +473,8 @@ const PreviewAddMember = () => {
                     Current Associations
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.currentassociations.length > 0
-                      ? newmember?.currentassociations.join("  ,  ")
+                    {currentMember?.currentassociations.length > 0
+                      ? currentMember?.currentassociations.join("  ,  ")
                       : "None"}
                   </dd>
                 </div>
@@ -475,7 +483,7 @@ const PreviewAddMember = () => {
                     Baptised
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.baptised}
+                    {currentMember?.baptised}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -483,7 +491,7 @@ const PreviewAddMember = () => {
                     Baptism Officiating Minister
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.baptised_officiatingminister}
+                    {currentMember?.baptised_officiatingminister}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -491,7 +499,7 @@ const PreviewAddMember = () => {
                     Place of Baptism
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.baptised_placeofbaptism}
+                    {currentMember?.baptised_placeofbaptism}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -499,13 +507,13 @@ const PreviewAddMember = () => {
                     Date of Baptism
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.baptised_datebaptism}
+                    {currentMember?.baptised_datebaptism}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                   <dt className="text-sm font-medium text-gray-500">NLB</dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.baptised_nlb}
+                    {currentMember?.baptised_nlb}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -513,7 +521,7 @@ const PreviewAddMember = () => {
                     Batism - GodParent
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.baptised_godparent}
+                    {currentMember?.baptised_godparent}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -521,7 +529,7 @@ const PreviewAddMember = () => {
                     Received First Communion
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.firstcommunion}
+                    {currentMember?.firstcommunion}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -529,7 +537,7 @@ const PreviewAddMember = () => {
                     First Communion Officiating Minister:
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.firstcommunion_officiatingminister}
+                    {currentMember?.firstcommunion_officiatingminister}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -537,7 +545,7 @@ const PreviewAddMember = () => {
                     Place of First Communion:
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.firstcommunion_placeoffirstcommunion}
+                    {currentMember?.firstcommunion_placeoffirstcommunion}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -545,13 +553,13 @@ const PreviewAddMember = () => {
                     Date of First Communion:
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.firstcommunion_datefirstcommunion}
+                    {currentMember?.firstcommunion_datefirstcommunion}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                   <dt className="text-sm font-medium text-gray-500">NLC:</dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.firstcommunion_nlc}
+                    {currentMember?.firstcommunion_nlc}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -559,7 +567,7 @@ const PreviewAddMember = () => {
                     First Communion GodParent:
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.firstcommunion_godparent}
+                    {currentMember?.firstcommunion_godparent}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -567,7 +575,7 @@ const PreviewAddMember = () => {
                     Confirmed:
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.confirmed}
+                    {currentMember?.confirmed}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -575,7 +583,7 @@ const PreviewAddMember = () => {
                     Confirmation Officiating Minister:
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.confirmed_officiatingminister}
+                    {currentMember?.confirmed_officiatingminister}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -583,7 +591,7 @@ const PreviewAddMember = () => {
                     Place of Confirmation:
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.confirmed_placeofconfirmation}
+                    {currentMember?.confirmed_placeofconfirmation}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -591,7 +599,7 @@ const PreviewAddMember = () => {
                     Date of Confirmation:
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.confirmed_datefconfirmation}
+                    {currentMember?.confirmed_datefconfirmation}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -599,7 +607,7 @@ const PreviewAddMember = () => {
                     Confirmation GodParent:
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.confirmed_godparent}
+                    {currentMember?.confirmed_godparent}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -607,7 +615,7 @@ const PreviewAddMember = () => {
                     Marital Status:
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.married_placeofholymatrimony}
+                    {currentMember?.married_placeofholymatrimony}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -615,7 +623,7 @@ const PreviewAddMember = () => {
                     Holy Matrimony Officiating Minister:
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.married_officiatingminister}
+                    {currentMember?.married_officiatingminister}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -623,7 +631,7 @@ const PreviewAddMember = () => {
                     Place of Holy Matrimony:
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.married_placeofholymatrimony}
+                    {currentMember?.married_placeofholymatrimony}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -631,7 +639,7 @@ const PreviewAddMember = () => {
                     Date of Holy Matrimony:
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.married_dateofholymatrimony}
+                    {currentMember?.married_dateofholymatrimony}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -639,13 +647,13 @@ const PreviewAddMember = () => {
                     Place of Holy Matrimony:
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.married_placeofholymatrimony}
+                    {currentMember?.married_placeofholymatrimony}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                   <dt className="text-sm font-medium text-gray-500">NLM:</dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.married_nlm}
+                    {currentMember?.married_nlm}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -653,7 +661,7 @@ const PreviewAddMember = () => {
                     Holy Matrimony GodParent:
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.married_godparent}
+                    {currentMember?.married_godparent}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -661,7 +669,7 @@ const PreviewAddMember = () => {
                     Name of Spouse:
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.nameofspouse}
+                    {currentMember?.nameofspouse}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -669,7 +677,7 @@ const PreviewAddMember = () => {
                     Spouse Denomination:
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.spousedenomination}
+                    {currentMember?.spousedenomination}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -677,7 +685,7 @@ const PreviewAddMember = () => {
                     Spouse Nationality:
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.spousenationality}
+                    {currentMember?.spousenationality}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -685,7 +693,7 @@ const PreviewAddMember = () => {
                     Number of Children:
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.numberofchildren}
+                    {currentMember?.numberofchildren}
                   </dd>
                 </div>
                 <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -693,8 +701,8 @@ const PreviewAddMember = () => {
                     Name of Children:
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {newmember?.nameofchildren.length > 0
-                      ? newmember?.nameofchildren.join(", ")
+                    {currentMember?.nameofchildren.length > 0
+                      ? currentMember?.nameofchildren.join(", ")
                       : "None"}
                   </dd>
                 </div>
