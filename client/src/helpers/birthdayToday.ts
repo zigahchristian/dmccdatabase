@@ -34,6 +34,7 @@ const getTodaysBirthdays = (data: User[]): string[] => {
       yearOfBirth: `${user.yearofbirth}`,
     })
   );
+  console.log(birthdayArray);
   return birthdayArray;
 };
 

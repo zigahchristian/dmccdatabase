@@ -87,7 +87,7 @@ const MemberCard: React.FC<UserCardProps> = ({ user }) => {
       <div className=" h-32 overflow-hidden">
         <img
           className="object-cover object-top w-full"
-          src={`${serverName}/static/member_backdrop.jpg`}
+          src={`${serverName}static/member_backdrop.jpg`}
           alt="memberBackdrop"
         />
       </div>
@@ -95,7 +95,7 @@ const MemberCard: React.FC<UserCardProps> = ({ user }) => {
       <div className="mx-auto w-32 h-32 relative -mt-16 border-4 rounded-full border-white overflow-hidden">
         <img
           className="object-cover object-center h-42 w-32"
-          src={`${serverName}/static/${user.avatar}`}
+          src={`${serverName}static/${user.avatar}`}
           alt={user.firstname}
         />
       </div>

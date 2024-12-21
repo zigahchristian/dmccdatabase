@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const serverName = "http://localhost:7240";
+export const serverName = "/api/";
 
 // Create an Axios instance
 const http = axios.create({

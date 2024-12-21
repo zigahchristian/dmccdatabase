@@ -2,9 +2,9 @@ import { Request, Response } from "express";
 import {
   createMember,
   getMembers,
+  getMemberById,
   deleteMemberById,
   updateMemberById,
-  getMemberById,
 } from "./member.model";
 
 import fs from "fs";
@@ -43,14 +43,16 @@ export const newMember = async (req: Request, res: Response) => {
       return res.status(400).json({ msg: "Not a registered User" });
     }
 
+    const newId = generateId(4, "DM");
+
     const member = await createMember({
       alive: req.body.alive,
       membership: req.body.membership,
       memberid: newId,
       avatar:
-        req.body.avatar.lenght > 15
+        req.body.avatar.length > 20
           ? saveBase64ToFile(req.body.avatar, imgpath, newId)
-          : "avatar.png",
+          : req.body.avatar,
       firstname: req.body.firstname,
       othernames: req.body.othernames,
       lastname: req.body.lastname,
@@ -154,6 +156,7 @@ export const updateMember = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const changes = req.body;
+
     const updatedMember = await updateMemberById(id, changes);
     return res.status(200).end();
   } catch (e) {

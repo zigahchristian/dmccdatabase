@@ -24,6 +24,7 @@ import RegisterForm from "./components/Auth/RegisterForm";
 import { isAuthenticated } from "./helpers/auth";
 import PreviewAddMember from "./components/Member/PreviewAddMember";
 import ProtectedRoute from "./components/Auth/ProtectRoute";
+import Camera from "./components/Member/Camera";
 
 const App = () => {
   const { dispatch } = useContext(MemberContext);
@@ -61,6 +62,7 @@ const App = () => {
         <Route element={<ProtectedRoute isAuthenticated={isAuthenticated()} />}>
           <Route element={<Layout />}>
             <Route path="/addmember" element={<AddMember />} />
+            <Route path="/cam" element={<Camera />} />
             <Route path="/addbulkmembers" element={<BulkMemberUpload />} />
             <Route path="/updatememberimage" element={<UpdateMemberImage />} />
             <Route path="/updateimage/:id" element={<UpdateImage />} />

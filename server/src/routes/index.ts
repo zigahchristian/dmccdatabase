@@ -11,9 +11,9 @@ router.get("/", (req: Request, res: Response) => {
 });
 
 //Users Routes
-router.use("/users", usersRoutes);
-router.use("/profile", profileRoutes);
-router.use("/members", memberRoutes);
-router.use("/dues", duesRoutes);
+router.use("/api/users", usersRoutes);
+router.use("/api/profile", profileRoutes);
+router.use("/api/members", memberRoutes);
+router.use("/api/dues", duesRoutes);
 
 export default router;

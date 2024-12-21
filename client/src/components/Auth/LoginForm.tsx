@@ -61,7 +61,7 @@ const LoginForm = () => {
     (window.location.href = "/")
   ) : (
     <div
-      className="w-full h-full bg-cover bg-no-repeat bg-center dark:bg-gray-800 shadow-md px-8 py-10 flex flex-col items-center"
+      className="w-full h-screen bg-cover bg-no-repeat bg-center dark:bg-gray-800 shadow-md px-8 py-10 flex flex-col items-center"
       style={{
         backgroundImage: `url('${authbg}')`,
       }}

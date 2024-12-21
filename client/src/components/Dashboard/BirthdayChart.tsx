@@ -23,7 +23,7 @@ const BirthdayChart: FC = () => {
           birthdaysToday.map((birthday, index) => (
             <Link
               key={index}
-              to={`/viewmember/${birthday._id}`}
+              to={`/viewmember/${birthday.id}`}
               className="flex items-start hover:no-underline"
             >
               <div className="w-10 h-10 min-w-[2.5rem] bg-gray-200 rounded-sm">

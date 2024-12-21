@@ -223,8 +223,6 @@ const PreviewAddMember = () => {
   });
 
   async function onSubmit(values: FormValues) {
-    console.log(values);
-    return;
     const res = await MemberService.addMember(values);
     if (res === 200 || res === 304) {
       navigate("/", { replace: true });

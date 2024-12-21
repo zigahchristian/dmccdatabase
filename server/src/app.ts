@@ -22,12 +22,12 @@ const app = express();
 export const imagepath = path.join(__dirname, "avatar");
 export const csvpath = path.join(__dirname, "csvdata");
 
-app.use("/static/", express.static(path.join(__dirname, "avatar")));
-app.use("/csv/", express.static(path.join(__dirname, "csvdata")));
+app.use("/api/static/", express.static(path.join(__dirname, "avatar")));
+app.use("/api/csv/", express.static(path.join(__dirname, "csvdata")));
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "http://api",
     credentials: true,
   })
 );
