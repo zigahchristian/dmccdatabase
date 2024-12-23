@@ -12,9 +12,9 @@ const getSession = async () => {
   }
 };
 
-const getAllUsers = async () => {
+const getMemberById = async (id) => {
   try {
-    const response = await http.get(`users/`);
+    const response = await http.get(`members/${id}`);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -112,7 +112,8 @@ const logout = async () => {
 const MemberService = {
   addMember,
   addBulkMembers,
-  getAllUsers,
+  updateMember,
+  getMemberById,
   getAllMembers,
 };
 

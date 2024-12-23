@@ -1,13 +1,13 @@
 import React from "react";
-import memberBackdrop from "../../assets/member_backdrop.jpg";
 import { Button } from "../ui/button";
 import { Link } from "react-router-dom";
 import { serverName } from "@/helpers/http-common";
 
 // Define the TypeScript interface for the user object
 interface User {
-  alive: sting;
+  alive: string;
   avatar: string;
+  memberid: string;
   firstname: string;
   othernames: string;
   lastname: string;
@@ -102,6 +102,12 @@ const MemberCard: React.FC<UserCardProps> = ({ user }) => {
 
       <div className="mt-4 border-t border-gray-200 px-4 py-5 sm:p-0">
         <dl className="sm:divide-y sm:divide-gray-200">
+          <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt className="text-sm font-medium text-gray-500">Member Id</dt>
+            <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              {user.memberid}
+            </dd>
+          </div>
           <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
             <dt className="text-sm font-medium text-gray-500">Alive</dt>
             <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">

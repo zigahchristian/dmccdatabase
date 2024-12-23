@@ -10,6 +10,7 @@ import { serverName } from "@/helpers/http-common";
 
 const BirthdayChart: FC = () => {
   const { members } = useContext(MemberContext);
+  console.log(members);
   const birthdaysToday = getTodaysBirthdays(members);
   return isAuthenticated() ? (
     <div className="w-full h-[22rem] bg-white p-4 mr-0 rounded-sm border border-gray-200 flex flex-col overflow-y-auto">

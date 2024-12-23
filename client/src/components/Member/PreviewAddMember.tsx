@@ -10,10 +10,9 @@ import {
 } from "../ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, replace, useNavigate } from "react-router-dom";
 import secureLocalStorage from "react-secure-storage";
 import MemberService from "../../services/memberService";
-import { AuthContext } from "../../contexts/AuthContext";
 import { useNotification } from "@/contexts/NotificationContext";
 import { serverName } from "@/helpers/http-common";
 
@@ -223,12 +222,10 @@ const PreviewAddMember = () => {
   });
 
   async function onSubmit(values: FormValues) {
-    console.log(values);
-    return;
     const res = await MemberService.addMember(values);
     if (res === 200 || res === 304) {
-      navigate("/", { replace: true });
       secureLocalStorage.removeItem("currentMember");
+      navigate("/", { replace: true });
       return showNotification({
         message: "Adding new member was Successful!",
         type: "success",
@@ -261,10 +258,19 @@ const PreviewAddMember = () => {
               render={({ field }) => (
                 <FormItem className="flex flex-col items-center">
                   <FormControl>
-                    <img
-                      src={`${serverName}/static/${currentMember.avatar}`}
-                      className="h-36 w-36"
-                    />
+                    {currentMember.avatar.split(":")[0] === "data" ? (
+                      <img
+                        src={currentMember.avatar}
+                        className="h-36 w-36"
+                        alt={currentMember.firstname}
+                      />
+                    ) : (
+                      <img
+                        className="object-cover object-top w-full"
+                        src={`${serverName}static/${currentMember.avatar}`}
+                        alt={currentMember.firstame}
+                      />
+                    )}
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -717,7 +723,7 @@ const PreviewAddMember = () => {
             {" "}
             <Link to="/addmember">Go Back</Link>
           </Button>
-          <Button type="submit">Submit</Button>
+          <Button type="submit">Add Member</Button>
         </div>
       </form>
     </Form>

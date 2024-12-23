@@ -49,10 +49,7 @@ export const newMember = async (req: Request, res: Response) => {
       alive: req.body.alive,
       membership: req.body.membership,
       memberid: newId,
-      avatar:
-        req.body.avatar.length > 20
-          ? saveBase64ToFile(req.body.avatar, imgpath, newId)
-          : req.body.avatar,
+      avatar: saveBase64ToFile(req.body.avatar, imgpath, newId),
       firstname: req.body.firstname,
       othernames: req.body.othernames,
       lastname: req.body.lastname,

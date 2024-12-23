@@ -15,7 +15,7 @@ import EditMember from "./components/Member/EditMember";
 import ViewMember from "./components/Member/ViewMember";
 import MakePayment from "./components/Payment/MakePayment";
 import UpdateMemberImage from "./components/Member/UpdateMemberImage";
-import UpdateImage from "./components/Member/updateimage";
+import UpdateImage from "./components/Member/UpdateImage";
 import SearchMember from "./components/Search/Search";
 import NotFound from "./components/NotFound/NotFound";
 import BulkMemberUpload from "./components/Member/BulkMemberUpload";
@@ -23,8 +23,8 @@ import LoginForm from "./components/Auth/LoginForm";
 import RegisterForm from "./components/Auth/RegisterForm";
 import { isAuthenticated } from "./helpers/auth";
 import PreviewAddMember from "./components/Member/PreviewAddMember";
+import PreviewUpdateMember from "./components/Member/PreviewUpdateMember";
 import ProtectedRoute from "./components/Auth/ProtectRoute";
-import Camera from "./components/Member/Camera";
 
 const App = () => {
   const { dispatch } = useContext(MemberContext);
@@ -62,11 +62,14 @@ const App = () => {
         <Route element={<ProtectedRoute isAuthenticated={isAuthenticated()} />}>
           <Route element={<Layout />}>
             <Route path="/addmember" element={<AddMember />} />
-            <Route path="/cam" element={<Camera />} />
             <Route path="/addbulkmembers" element={<BulkMemberUpload />} />
             <Route path="/updatememberimage" element={<UpdateMemberImage />} />
             <Route path="/updateimage/:id" element={<UpdateImage />} />
             <Route path="/previewaddmember" element={<PreviewAddMember />} />
+            <Route
+              path="/previewupdatemember"
+              element={<PreviewUpdateMember />}
+            />
             <Route path="/viewmember/:id" element={<ViewMember />} />
             <Route path="/editmember/:id" element={<EditMember />} />
             <Route path="/makepayment/:id" element={<MakePayment />} />

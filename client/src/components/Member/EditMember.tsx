@@ -5,7 +5,7 @@ import * as z from "zod";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-
+import { MemberContext } from "@/contexts/MemberContext";
 import {
   Form,
   FormControl,
@@ -28,13 +28,14 @@ import { ImageUpload } from "./ImageUpload";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { X, CalendarIcon } from "lucide-react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useNotification } from "../../contexts/NotificationContext";
 import secureLocalStorage from "react-secure-storage";
-import { MemberContext } from "@/contexts/MemberContext";
+import { useParams } from "react-router-dom";
 
 const formSchema = z.object({
-  alive: z.string(),
+  _id: z.string().optional(),
+  alive: z.string().optional(),
   membership: z.string(),
   avatar: z.string().optional(),
   firstname: z.string().min(4, {
@@ -153,7 +154,7 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-const AddMember = () => {
+const EditMember = () => {
   const [avatarFile, setAvatarFile] = useState<File>();
   const [newLanguage, setNewLanguage] = useState("");
   const [newSkill, setNewSkill] = useState("");
@@ -162,91 +163,95 @@ const AddMember = () => {
   const [newChildren, setNewChildren] = useState("");
   const navigate = useNavigate();
   const { showNotification } = useNotification();
-  const [imageFile, setImageFile] = useState<File | null>(null);
   const params = useParams();
   const { id } = params;
   const { members } = useContext(MemberContext);
-  const currentMember = secureLocalStorage.getItem("currentMember"); //members.find((member) => member._id === id);
-  console.log(currentMember);
+  const user = members.find((user) => user._id === id);
+  secureLocalStorage.setItem("updateMember", user);
+
+  const updateMember = secureLocalStorage.getItem("updateMember");
+
+  console.log(updateMember);
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      alive: currentMember?.alive || "true",
-      membership: currentMember?.membership || "active",
-      avatar: currentMember?.avatar || "",
-      firstname: currentMember?.firstname || "",
-      othernames: currentMember?.othernames || "",
-      lastname: currentMember?.lastname || "",
-      dayofbirth: currentMember?.dayofbirth || "",
-      numberdayofbirth: currentMember?.numberdayofbirth || "",
-      monthofbirth: currentMember?.monthofbirth || "",
-      yearofbirth: currentMember?.yearofbirth || "",
-      gender: currentMember?.gender || "",
-      active: currentMember?.active || "active",
-      mothertongue: currentMember?.mothertongue || "",
-      placeofbirth: currentMember?.placeofbirth || "",
-      hometown: currentMember?.hometown || "",
-      fathersname: currentMember?.fathersname || "",
-      mothersname: currentMember?.mothersname || "",
-      country: currentMember?.country || "",
-      email: currentMember?.email || "",
-      emergencycontact: currentMember?.emergencycontact || "",
-      phonenumber1: currentMember?.phonenumber1 || "",
-      phonenumber2: currentMember?.phonenumber2 || "",
-      digitaladdress: currentMember?.digitaladdress || "",
-      city: currentMember?.city || "",
-      landmark: currentMember?.landmark || "",
-      education: currentMember?.education || "",
-      otherlanguages: currentMember?.otherlanguages || [],
-      skills: currentMember?.skills || [],
+      _id: updateMember?._id || null,
+      alive: updateMember?.alive || "true",
+      membership: updateMember?.membership || "active",
+      avatar: updateMember?.avatar || "",
+      firstname: updateMember?.firstname || "",
+      othernames: updateMember?.othernames || "",
+      lastname: updateMember?.lastname || "",
+      dayofbirth: updateMember?.dayofbirth || "",
+      numberdayofbirth: updateMember?.numberdayofbirth || "",
+      monthofbirth: updateMember?.monthofbirth || "",
+      yearofbirth: updateMember?.yearofbirth || "",
+      gender: updateMember?.gender || "",
+      active: updateMember?.active || "active",
+      mothertongue: updateMember?.mothertongue || "",
+      placeofbirth: updateMember?.placeofbirth || "",
+      hometown: updateMember?.hometown || "",
+      fathersname: updateMember?.fathersname || "",
+      mothersname: updateMember?.mothersname || "",
+      country: updateMember?.country || "",
+      email: updateMember?.email || "",
+      emergencycontact: updateMember?.emergencycontact || "",
+      phonenumber1: updateMember?.phonenumber1 || "",
+      phonenumber2: updateMember?.phonenumber2 || "",
+      digitaladdress: updateMember?.digitaladdress || "",
+      city: updateMember?.city || "",
+      landmark: updateMember?.landmark || "",
+      education: updateMember?.education || "",
+      otherlanguages: updateMember?.otherlanguages || [],
+      skills: updateMember?.skills || [],
       occupationstatus:
-        currentMember?.occupationstatus || "Choose Employment Stats",
-      occupation: currentMember?.occupation || "",
-      placeofwork: currentMember?.placeofwork || "",
-      nameofschool: currentMember?.nameofschool || "",
-      previousparish: currentMember?.previousparish || "",
-      previousassociations: currentMember?.previousassociations || [],
-      currentassociations: currentMember?.currentassociations || [],
-      baptised: currentMember?.baptised || "No",
+        updateMember?.occupationstatus || "Choose Employment Stats",
+      occupation: updateMember?.occupation || "",
+      placeofwork: updateMember?.placeofwork || "",
+      nameofschool: updateMember?.nameofschool || "",
+      previousparish: updateMember?.previousparish || "",
+      previousassociations: updateMember?.previousassociations || [],
+      currentassociations: updateMember?.currentassociations || [],
+      baptised: updateMember?.baptised || "No",
       baptised_officiatingminister:
-        currentMember?.baptised_officiatingminister || "",
-      baptised_placeofbaptism: currentMember?.baptised_placeofbaptism || "",
-      baptised_datebaptism: currentMember?.baptised_datebaptism || undefined,
-      baptised_nlb: currentMember?.baptised_nlb || "",
-      baptised_godparent: currentMember?.baptised_godparent || "",
-      firstcommunion: currentMember?.firstcommunion || "No",
+        updateMember?.baptised_officiatingminister || "",
+      baptised_placeofbaptism: updateMember?.baptised_placeofbaptism || "",
+      baptised_datebaptism: updateMember?.baptised_datebaptism || undefined,
+      baptised_nlb: updateMember?.baptised_nlb || "",
+      baptised_godparent: updateMember?.baptised_godparent || "",
+      firstcommunion: updateMember?.firstcommunion || "No",
       firstcommunion_officiatingminister:
-        currentMember?.firstcommunion_officiatingminister || "",
+        updateMember?.firstcommunion_officiatingminister || "",
       firstcommunion_placeoffirstcommunion:
-        currentMember?.firstcommunion_placeoffirstcommunion || "",
+        updateMember?.firstcommunion_placeoffirstcommunion || "",
       firstcommunion_datefirstcommunion:
-        currentMember?.firstcommunion_datefirstcommunion || undefined,
-      firstcommunion_nlc: currentMember?.firstcommunion_nlc || "",
-      firstcommunion_godparent: currentMember?.firstcommunion_godparent || "",
-      confirmed: currentMember?.confirmed || "No",
+        updateMember?.firstcommunion_datefirstcommunion || undefined,
+      firstcommunion_nlc: updateMember?.firstcommunion_nlc || "",
+      firstcommunion_godparent: updateMember?.firstcommunion_godparent || "",
+      confirmed: updateMember?.confirmed || "No",
       confirmed_officiatingminister:
-        currentMember?.confirmed_officiatingminister || "",
+        updateMember?.confirmed_officiatingminister || "",
       confirmed_placeofconfirmation:
-        currentMember?.confirmed_placeofconfirmation || "",
+        updateMember?.confirmed_placeofconfirmation || "",
       confirmed_datefconfirmation:
-        currentMember?.confirmed_datefconfirmation || undefined,
-      confirmed_nlconf: currentMember?.confirmed_nlconf || "",
-      confirmed_godparent: currentMember?.confirmed_godparent || "",
-      maritalstatus: currentMember?.maritalstatus || "Single",
+        updateMember?.confirmed_datefconfirmation || undefined,
+      confirmed_nlconf: updateMember?.confirmed_nlconf || "",
+      confirmed_godparent: updateMember?.confirmed_godparent || "",
+      maritalstatus: updateMember?.maritalstatus || "Single",
       married_officiatingminister:
-        currentMember?.married_officiatingminister || "",
+        updateMember?.married_officiatingminister || "",
       married_placeofholymatrimony:
-        currentMember?.married_placeofholymatrimony || "",
+        updateMember?.married_placeofholymatrimony || "",
       married_dateofholymatrimony:
-        currentMember?.married_dateofholymatrimony || undefined,
-      married_nlm: currentMember?.married_nlm || "",
-      married_godparent: currentMember?.married_godparent || "",
-      nameofspouse: currentMember?.nameofspouse || "",
-      spousedenomination: currentMember?.spousedenomination || "",
-      spousenationality: currentMember?.spousenationality || "",
-      numberofchildren: currentMember?.numberofchildren || "",
-      nameofchildren: currentMember?.nameofchildren || [],
-      dues: currentMember?.dues || [],
+        updateMember?.married_dateofholymatrimony || undefined,
+      married_nlm: updateMember?.married_nlm || "",
+      married_godparent: updateMember?.married_godparent || "",
+      nameofspouse: updateMember?.nameofspouse || "",
+      spousedenomination: updateMember?.spousedenomination || "",
+      spousenationality: updateMember?.spousenationality || "",
+      numberofchildren: updateMember?.numberofchildren || "",
+      nameofchildren: updateMember?.nameofchildren || [],
+      dues: updateMember?.dues || [],
     },
   });
 
@@ -360,7 +365,8 @@ const AddMember = () => {
   async function onSubmit(values: FormValues) {
     try {
       const formData = new FormData();
-      formData.append("avatarfile", avatarFile);
+      formData.append("_id", values._id);
+      formData.append("avatar", avatarFile);
       formData.append("alive", values.alive);
       formData.append("membership", values.membership);
       formData.append("firstname", values.firstname);
@@ -457,9 +463,10 @@ const AddMember = () => {
       formData.append("nameofchildren", values.nameofchildren);
 
       // Handle success
-      console.log("Registration successful");
-      secureLocalStorage.setItem("currentMember", values);
-      navigate("/previewaddmember");
+
+      secureLocalStorage.setItem("updateMember", values);
+      console.log(values);
+      navigate("/previewupdatemember");
       showNotification({
         message: "Proceed to Preview Details & Submit",
         type: "info",
@@ -468,7 +475,6 @@ const AddMember = () => {
       console.error("Registration error:", error);
     }
   }
-
   return (
     <div className="w-full m-2 mx-auto p-4">
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
@@ -482,6 +488,55 @@ const AddMember = () => {
                 <p className="mt-2 text-sm text-gray-600">
                   Fill in the details below to get started
                 </p>
+              </div>
+              <div className="space-y-6">
+                <div>
+                  <FormField
+                    control={form.control}
+                    name="avatar"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col items-center">
+                        <FormControl>
+                          <ImageUpload
+                            value={field.value}
+                            onChange={(dataUrl, file) => {
+                              field.onChange(dataUrl);
+                              if (file) setAvatarFile(file);
+                            }}
+                            disabled={form.formState.isSubmitting}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+              <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                <FormField
+                  control={form.control}
+                  name="alive"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Alive</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select Status" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="True">True</SelectItem>
+                          <SelectItem value="False">False</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
               <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                 {/**First Name Field */}
@@ -2498,4 +2553,4 @@ const AddMember = () => {
   );
 };
 
-export default AddMember;
+export default EditMember;
