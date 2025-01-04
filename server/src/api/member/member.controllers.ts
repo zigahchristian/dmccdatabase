@@ -173,62 +173,23 @@ export const deleteMember = async (req: Request, res: Response) => {
   }
 };
 
-export const uploadAvatar = async (req: Request, res: Response) => {
+export const updateAvatar = async (req: Request, res: Response) => {
   try {
     const { memberid } = req.params;
 
-    // Generate filename, resize and save to avatar folder
-    const newfilename = `${generateId(12, "member")}${path.extname(
-      req?.file?.originalname
-    )}`;
-    const saveTo = imagepath;
-    const filePath = path.join(saveTo, newfilename);
-
-    await sharp(req?.file?.buffer)
-      .resize({ width: 400, height: 300, fit: "inside" })
-      .toFile(filePath);
-
     // Update Member
     const dbMember = await getMemberById(memberid);
-    dbMember.avatar = newfilename;
+    console.log(dbMember);
+    dbMember.avatar = saveBase64ToFile(
+      req.body.avatar,
+      imgpath,
+      dbMember.memberid
+    );
     await dbMember.save();
+    return res.status(200).end();
   } catch (err) {
     console.log(err);
   }
-  return res.status(200).end();
-};
-
-export const updateAvatar = async (req: Request, res: Response) => {
-  try {
-    const { memberid, avatarid } = req.params;
-
-    if (!avatarid && !memberid) {
-      return res.sendStatus(403).end();
-    }
-
-    // Delete Image before Adding New One
-    const avatarToDelete = `${imagepath}/${avatarid}`;
-    fs.unlinkSync(avatarToDelete);
-
-    // Generate filename, resize and save to avatar folder
-    const newfilename = `${generateId(12, "member")}${path.extname(
-      req?.file?.originalname
-    )}`;
-    const saveTo = imagepath;
-    const filePath = path.join(saveTo, newfilename);
-
-    await sharp(req?.file?.buffer)
-      .resize({ width: 400, height: 300, fit: "inside" })
-      .toFile(filePath);
-
-    // Update Member
-    const dbMember = await getMemberById(memberid);
-    dbMember.avatar = newfilename;
-    await dbMember.save();
-  } catch (err) {
-    console.log(err);
-  }
-  return res.status(200).end();
 };
 
 export const deleteAvatar = async (req: Request, res: Response) => {

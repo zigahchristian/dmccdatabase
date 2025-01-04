@@ -11,22 +11,21 @@ import { getMemberById } from "../member/member.model";
 export const newDues = async (req: Request, res: Response) => {
   try {
     const { memberid } = req.params;
-    const { type_of_dues, price } = req.body;
+    const { description, amount, paid_by } = req.body;
 
-    if (!type_of_dues || !price) {
+    if (!description || !amount) {
       return res.sendStatus(500);
     }
 
-    const created_by = req.session.authUserId;
-    const paid_by = memberid;
+    const created_by = "67689e90bc6f973f7f087ec7"; //req.session.authUserId;
 
     if (!created_by) {
       return res.status(400).end();
     }
 
     const dues = await createDues({
-      type_of_dues: type_of_dues,
-      price: price,
+      description: description,
+      amount: amount,
       date: Date.now(),
       paid_by: paid_by,
       created_by: created_by,

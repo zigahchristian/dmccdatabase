@@ -23,6 +23,17 @@ const getMemberById = async (id) => {
   }
 };
 
+const patchMemberImage = async (id, data) => {
+  try {
+    const response = await http.patch(`members/avatar/${id}`, data);
+    return response.status;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      return `${error.response.status} , ${error.response?.data?.message}`;
+    }
+  }
+};
+
 const getAllMembers = async () => {
   try {
     const response = await http.get(`members/`);
@@ -49,7 +60,7 @@ const addMember = async (data) => {
   }
 };
 
-const updateMember = async (data, id) => {
+const updateMember = async (id, data) => {
   try {
     const response = await http.patch(`members/${id}`, data);
     return response.status;
@@ -115,6 +126,7 @@ const MemberService = {
   updateMember,
   getMemberById,
   getAllMembers,
+  patchMemberImage,
 };
 
 export default MemberService;

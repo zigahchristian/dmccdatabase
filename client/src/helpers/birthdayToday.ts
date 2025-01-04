@@ -21,11 +21,12 @@ const getTodaysBirthdays = (data: User[]): string[] => {
   const numberdayoftoday = numtoday.split(" ")[2].toString();
 
   // Filter users whose birthday is today
-  const todaysBirthdays = data.filter(
-    (user) =>
-      user.numberdayofbirth == numberdayoftoday &&
-      user.monthofbirth == todayMonth
-  );
+  const todaysBirthdays = data.filter((user) => {
+    return (
+      user.numberdayofbirth === numberdayoftoday &&
+      user.monthofbirth === todayMonth
+    );
+  });
 
   // Return an array of names (or any other details you want)
   todaysBirthdays.map((user) =>

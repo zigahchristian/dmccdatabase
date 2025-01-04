@@ -68,7 +68,7 @@ const MemberSchema = new mongoose.Schema(
     spousenationality: { type: String },
     numberofchildren: { type: String },
     nameofchildren: { type: Array },
-    dues: { type: Array },
+    dues: [{ type: mongoose.Schema.Types.ObjectId, ref: "Dues" }],
 
     //Information entered by which user?
     created_by: {
@@ -85,9 +85,10 @@ const MemberSchema = new mongoose.Schema(
 
 export const MemberModel = mongoose.model("Member", MemberSchema);
 
-export const getMembers = () => MemberModel.find();
+export const getMembers = () => MemberModel.find().populate("dues");
 
-export const getMemberById = (id: string) => MemberModel.findOne({ _id: id });
+export const getMemberById = (id: string) =>
+  MemberModel.findOne({ _id: id }).populate("dues");
 
 export const createMember = (values: Record<string, any>) =>
   new MemberModel(values).save();

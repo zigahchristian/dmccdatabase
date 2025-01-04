@@ -5,13 +5,11 @@ import {
   getRegisteredMemberById,
   updateMember,
   deleteMember,
-  uploadAvatar,
   updateAvatar,
   deleteAvatar,
   newBulkMemberUpdload,
 } from "./member.controllers";
 
-import uploads from "../../middlewares/multerConfig";
 import csvuploads from "../../middlewares/csvuploads";
 import { isAuthenticated } from "../../middlewares";
 
@@ -25,21 +23,9 @@ router.get("/:id", isAuthenticated, getRegisteredMemberById);
 
 router.patch("/:id", isAuthenticated, updateMember);
 
+router.patch("/avatar/:memberid", isAuthenticated, updateAvatar);
+
 router.delete("/:id", isAuthenticated, deleteMember);
-
-router.post(
-  "/avatar/:memberid",
-  isAuthenticated,
-  uploads.single("avatar"),
-  uploadAvatar
-);
-
-router.patch(
-  "/avatar/:memberid/:avatarid",
-  isAuthenticated,
-  uploads.single("avatar"),
-  updateAvatar
-);
 
 router.post(
   "/newBulkMembersUpload",

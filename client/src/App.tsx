@@ -14,6 +14,7 @@ import AddMember from "./components/Member/AddMember";
 import EditMember from "./components/Member/EditMember";
 import ViewMember from "./components/Member/ViewMember";
 import MakePayment from "./components/Payment/MakePayment";
+import UpdatePayment from "./components/Payment/UpdatePayment";
 import UpdateMemberImage from "./components/Member/UpdateMemberImage";
 import UpdateImage from "./components/Member/UpdateImage";
 import SearchMember from "./components/Search/Search";
@@ -73,6 +74,10 @@ const App = () => {
             <Route path="/viewmember/:id" element={<ViewMember />} />
             <Route path="/editmember/:id" element={<EditMember />} />
             <Route path="/makepayment/:id" element={<MakePayment />} />
+            <Route
+              path="/updatepayment/:duesid/:userid"
+              element={<UpdatePayment />}
+            />
             <Route path="/search" element={<SearchMember />} />
             <Route index={true} path="/" element={<Dashboard />} />
           </Route>

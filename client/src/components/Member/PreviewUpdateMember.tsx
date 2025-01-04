@@ -225,7 +225,7 @@ const PreviewUpdateMember = () => {
 
   async function onSubmit(values: FormValues) {
     console.log(values);
-    const res = await MemberService.updateMember(values, values?._id);
+    const res = await MemberService.updateMember(values?._id, values);
     if (res === 200 || res === 304) {
       secureLocalStorage.removeItem("updateMember");
       navigate("/", { replace: true });

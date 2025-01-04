@@ -3,15 +3,17 @@ import mongoose from "mongoose";
 const DuesSchema = new mongoose.Schema(
   {
     //Basic Information
-    type_of_dues: { type: String, required: true },
-    price: { type: Number, required: true },
-    date: { type: String, defualt: Date.now() },
+    description: { type: String, required: true },
+    amount: { type: Number, required: true },
+    date: {
+      type: String,
+      defualt: new Date().toISOString().split(".")[0].replace("T", " @ "),
+    },
 
     // paid by
     paid_by: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       required: true,
-      ref: "User",
     },
 
     //Information entered by which user?

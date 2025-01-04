@@ -25,16 +25,19 @@ import { useNavigate } from "react-router-dom";
 import { useNotification } from "../../contexts/NotificationContext";
 import secureLocalStorage from "react-secure-storage";
 import { useParams } from "react-router-dom";
-import MemberService from "@/services/memberService";
 import DuesService from "@/services/duesService";
+import { CurrentDuesContext } from "@/contexts/CurrentDuesContext";
+import MemberService from "@/services/memberService";
 import { CurrentMemberContext } from "@/contexts/CurrentMemberContext";
+import Loading from "../Loading/Loading";
+import Logo from "../../assets/dmcc.png";
 
 const formSchema = z.object({
   description: z.string().min(4, {
     message: "Description is required.",
   }),
-  amount: z.string().min(1, {
-    message: "Username must be at least 4 characters.",
+  amount: z.number().min(1, {
+    message: "Username must be at least 1 characters.",
   }),
   date: z.date().optional(),
   paid_by: z.string().min(4, { message: "Paid by is required." }),
@@ -42,38 +45,58 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-const MakePayment = () => {
+const UpdatePayment = () => {
   const params = useParams();
-  const { id } = params;
+  const { duesid, userid } = params;
   const navigate = useNavigate();
   const { showNotification } = useNotification();
   const date = new Date();
   const currentYear = date.getFullYear();
 
+  const { currentdues, loading } = useContext(CurrentDuesContext);
+  const { dispatch } = useContext(CurrentDuesContext);
   const { currentmember } = useContext(CurrentMemberContext);
-  const { dispatch } = useContext(CurrentMemberContext);
+  const { dispatch: mdispatch } = useContext(CurrentMemberContext);
 
   useEffect(() => {
     const fetchMember = async () => {
       dispatch({ type: "FETCH REQUEST" });
       try {
-        const dbdata = await MemberService.getMemberById(id);
+        const dbdata = await MemberService.getMemberById(userid);
+        mdispatch({ type: "FETCH_SUCCESS", payload: dbdata });
+      } catch (error) {
+        console.error(error);
+        mdispatch({ type: "FETCH_FAILED", payload: error });
+      }
+    };
+
+    const fetchDues = async () => {
+      dispatch({ type: "FETCH REQUEST" });
+      try {
+        const dbdata = await DuesService.getDuesById(duesid);
+        secureLocalStorage.setItem("currentdues", dbdata);
         dispatch({ type: "FETCH_SUCCESS", payload: dbdata });
-        secureLocalStorage.setItem("currentmember", dbdata);
       } catch (error) {
         console.error(error);
         dispatch({ type: "FETCH_FAILED", payload: error });
       }
     };
     fetchMember();
+    fetchDues();
   }, []);
+
+  const cdues: any = secureLocalStorage.getItem("currentdues");
+
+  if (cdues === null) {
+    return window.location.reload();
+  }
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      description: "",
-      amount: "",
-      paid_by: "",
+      description: cdues.description,
+      amount: parseInt(cdues.amount),
+      paid_by: cdues.paid_by,
     },
   });
 
@@ -85,11 +108,12 @@ const MakePayment = () => {
       formData.append("paid_by", values.paid_by);
 
       // Handle success
-      const res = await DuesService.addDues(id, formData);
+      const res = await DuesService.updateDues(cdues._id, formData);
       if (res === 200 || res === 304) {
-        navigate("/", { replace: true });
+        navigate(`/`, { replace: true });
+        secureLocalStorage.removeItem("currentdues");
         return showNotification({
-          message: "Payment recorded successfully",
+          message: "Payment recorded  updated successfully",
           type: "success",
         });
       }
@@ -97,14 +121,17 @@ const MakePayment = () => {
       console.error("Payment Error:", error);
     }
   }
-  return (
+
+  return loading ? (
+    <Loading logoUrl={Logo} />
+  ) : (
     <div className="w-full m-2 mx-auto p-4">
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="">
             <div className="text-center mb-8">
               <h1 className="text-2xl font-bold text-gray-900">
-                You are making payment for :{" "}
+                You are updating payment for :{" "}
                 {currentmember?.firstname +
                   " " +
                   currentmember?.lastname +
@@ -195,7 +222,15 @@ const MakePayment = () => {
               />
             </div>
             <br />
-            <Button className="w-full mt-2"> Make Payment</Button>
+            <div className="flex justify-center items-center">
+              <Button className=" bg-green-700  w-50 ml-6 mr-6 py-4 px-4 rounded w-full sm:w-40 lg:w-48">
+                {" "}
+                Update Payment
+              </Button>
+              <Button className="bg-red-700 w-50 ml-6 mr-6 py-4 px-4 rounded w-full sm:w-40 lg:w-48">
+                Delete Payment
+              </Button>
+            </div>
           </form>
         </Form>
       </div>
@@ -203,4 +238,4 @@ const MakePayment = () => {
   );
 };
 
-export default MakePayment;
+export default UpdatePayment;

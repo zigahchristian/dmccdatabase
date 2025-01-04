@@ -8,7 +8,6 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "../ui/form";
 import { Button } from "../ui/button";
@@ -16,6 +15,7 @@ import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ImageUpload } from "./ImageUpload";
+import MemberService from "../../services/memberService";
 
 const formSchema = z.object({
   avatar: z.string().optional(),
@@ -45,8 +45,15 @@ const UpdateImage = () => {
     try {
       setLoading(true);
       const formData = new FormData();
-      formData.append("avatar", avatarFile);
-      console.log(values);
+      formData.append("avatar", values.avatar);
+      const res = await MemberService.patchMemberImage(id, formData);
+      if (res === 200 || res === 304) {
+        navigate(`/viewmember/${id}`, { replace: true });
+        return showNotification({
+          message: "Successfully update user Image",
+          type: "success",
+        });
+      }
     } catch (error) {
       console.log(error);
     } finally {
@@ -55,12 +62,6 @@ const UpdateImage = () => {
   }
 
   /*
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files.length > 0) {
-      setFile(event.target.files?.[0]);
-    }
-  };
-
   const handleSubmit = async () => {
     if (!file) {
       alert("Please select a file first!");
@@ -97,8 +98,8 @@ const UpdateImage = () => {
     } finally {
       setLoading(false);
     }
-  }; */
-
+  }; 
+ */
   return (
     <div className="flex flex-col items-center justify-center h-full bg-gray-100">
       <Form {...form}>
@@ -109,7 +110,7 @@ const UpdateImage = () => {
                 Old Image - to Update....
               </h3>
               <img
-                src={`${serverName}/static/${imgToUpdate[0].avatar}`}
+                src={`${serverName}static/${imgToUpdate[0].avatar}`}
                 className="h-[10rem] w-[10rem]"
               />
             </div>

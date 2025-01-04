@@ -717,18 +717,18 @@ const EditMember = () => {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="January">January</SelectItem>
-                            <SelectItem value="February">February</SelectItem>
-                            <SelectItem value="March">March</SelectItem>
-                            <SelectItem value="April">April</SelectItem>
-                            <SelectItem value="May">May</SelectItem>
-                            <SelectItem value="June">June</SelectItem>
-                            <SelectItem value="July">July</SelectItem>
-                            <SelectItem value="August">August</SelectItem>
-                            <SelectItem value="September">September</SelectItem>
-                            <SelectItem value="October">October</SelectItem>
-                            <SelectItem value="November">November</SelectItem>
-                            <SelectItem value="December">December</SelectItem>
+                            <SelectItem value="1">January</SelectItem>
+                            <SelectItem value="2">February</SelectItem>
+                            <SelectItem value="3">March</SelectItem>
+                            <SelectItem value="4">April</SelectItem>
+                            <SelectItem value="5">May</SelectItem>
+                            <SelectItem value="6">June</SelectItem>
+                            <SelectItem value="7">July</SelectItem>
+                            <SelectItem value="8">August</SelectItem>
+                            <SelectItem value="9">September</SelectItem>
+                            <SelectItem value="10">October</SelectItem>
+                            <SelectItem value="11">November</SelectItem>
+                            <SelectItem value="12">December</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />

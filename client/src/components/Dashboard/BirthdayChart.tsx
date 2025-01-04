@@ -10,8 +10,9 @@ import { serverName } from "@/helpers/http-common";
 
 const BirthdayChart: FC = () => {
   const { members } = useContext(MemberContext);
-  console.log(members);
   const birthdaysToday = getTodaysBirthdays(members);
+  let date = new Date();
+  const currentYear = date.getFullYear();
   return isAuthenticated() ? (
     <div className="w-full h-[22rem] bg-white p-4 mr-0 rounded-sm border border-gray-200 flex flex-col overflow-y-auto">
       <strong className="text-gray-700 font-medium underline-offset-1">
@@ -30,7 +31,7 @@ const BirthdayChart: FC = () => {
               <div className="w-10 h-10 min-w-[2.5rem] bg-gray-200 rounded-sm">
                 <img
                   className="w-full h-full object-cover rounded-sm"
-                  src={`${serverName}/static/${birthday?.avatar}`}
+                  src={`${serverName}static/${birthday?.avatar}`}
                   alt={birthday.firstname}
                 />
               </div>
@@ -48,7 +49,7 @@ const BirthdayChart: FC = () => {
                     "text-xs font-medium"
                   )}
                 >
-                  {birthday.age}
+                  {currentYear - parseInt(birthday?.yearOfBirth)}
                 </span>
               </div>
               <div className="text-xs text-gray-400 pl-1.5">

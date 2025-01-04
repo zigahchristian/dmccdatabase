@@ -2,6 +2,7 @@ import React from "react";
 import { Button } from "../ui/button";
 import { Link } from "react-router-dom";
 import { serverName } from "@/helpers/http-common";
+import moment from "moment";
 
 // Define the TypeScript interface for the user object
 interface User {
@@ -83,10 +84,10 @@ const MemberCard: React.FC<UserCardProps> = ({ user }) => {
   };
 
   return (
-    <div className="lg:w-full bg-white shadow-xl  text-gray-900 ">
+    <div className="w-full bg-white shadow-xl  text-gray-900 ">
       <div className=" h-32 overflow-hidden">
         <img
-          className="object-cover object-top w-full"
+          className="object-cover object-top min-w-full"
           src={`${serverName}static/member_backdrop.jpg`}
           alt="memberBackdrop"
         />
@@ -100,7 +101,7 @@ const MemberCard: React.FC<UserCardProps> = ({ user }) => {
         />
       </div>
 
-      <div className="mt-4 border-t border-gray-200 px-4 py-5 sm:p-0">
+      <div className="min-w-full mr-4 ml-5 bg-white shadow-lg rounded-lg overflow-hidden ">
         <dl className="sm:divide-y sm:divide-gray-200">
           <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
             <dt className="text-sm font-medium text-gray-500">Member Id</dt>
@@ -507,20 +508,113 @@ const MemberCard: React.FC<UserCardProps> = ({ user }) => {
                 : "None"}
             </dd>
           </div>
+          <div className="py-3 sm:py-5 sm:grid sm:grid-cols-2 sm:gap-4 sm:px-6">
+            <dt className="text-sm font-medium text-gray-500">Dues:</dt>
+            <br />
+            <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              {user.dues.length === 0 ? (
+                "No Dues Record Available"
+              ) : (
+                <div className="w-full m-2 mx-auto p-4">
+                  <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <h4 className="text-m font-bold text-gray-900 mb-4">
+                      Dues Payment Records
+                    </h4>
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                              Date & Time
+                            </th>
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                              Description
+                            </th>
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                              Amount
+                            </th>
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                              Paid By
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          {user.dues.map((due, index) => (
+                            <tr key={index}>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {Date(due.date).replace(
+                                  "GMT+0000 (Greenwich Mean Time)",
+                                  ""
+                                )}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {due.description}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {due.amount}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {due.paid_by}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <Link
+                                  to={`/updatepayment/${due._id}/${user._id}`}
+                                  refresh="true"
+                                >
+                                  <button className="bg-[#02424240] hover:bg-blue-700 text-white font-bold py-2 px-4 text-sm rounded-md">
+                                    {" "}
+                                    Update Dues
+                                  </button>
+                                </Link>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </dd>
+          </div>
         </dl>
       </div>
-      <div className="mt-6 flex flex-col items-center justify-between w-full p-8 mx-4 my-4 gap-4">
-        <Button className="bg-green-600 " onClick={handlePrint}>
+      <div className="flex flex-wrap gap-4 mt-6 mb-6 ml-4 mr-4 justify-between">
+        <Button
+          className="bg-green-600 ml-6 mr-6 py-6 px-4 rounded w-full sm:w-40 lg:w-48"
+          onClick={handlePrint}
+        >
           Print Member Details
         </Button>
 
-        <Link to={`/editmember/${user?._id}`}>
-          <Button className="bg-orange-600 w-50">Update Member</Button>
+        <Link
+          to={`/editmember/${user?._id}`}
+          className="hover:bg-primary/90 text-center text-white font-medium bg-orange-600 w-50 ml-6 mr-6 py-4 px-4 rounded w-full sm:w-40 lg:w-48"
+        >
+          Update Member
         </Link>
-        <Link to={`/makepayment/${user?._id}`}>
-          <Button className="bg-blue-600 w-50">Make Payment</Button>
+        <Link
+          to={`/makepayment/${user?._id}`}
+          Button
+          className="hover:bg-primary/90 text-center text-white font-medium bg-blue-600 w-50 ml-6 mr-6 py-4 px-4 rounded w-full sm:w-40 lg:w-48"
+        >
+          Make Payment
         </Link>
-        <Button className="bg-red-700 w-50">Delete</Button>
+        <Button className="bg-red-700 w-50 ml-6 mr-6 py-4 px-4 rounded w-full sm:w-40 lg:w-48">
+          Delete
+        </Button>
       </div>
     </div>
   );
