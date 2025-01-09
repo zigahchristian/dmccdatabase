@@ -13,20 +13,6 @@ services:
     networks:
       - dmcc-network
 
-  nginx:
-    container_name: "dmccnginx"
-    tty: true
-    build:
-      context: ./nginx
-      dockerfile: Dockerfile.dev
-    ports:
-      - 80:80
-    networks:
-      - dmcc-network
-    depends_on:
-      - api
-      - client
-
   api:
     container_name: "dmccserver"
     build:

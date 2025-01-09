@@ -66,6 +66,47 @@ interface User {
 }
 
 const getSearchResult = (data: User[], query: string): string[] => {
+  if (query.includes("-")) {
+    const minAge = parseInt(query.split("-")[0], 10);
+    const maxAge = parseInt(query.split("-")[1], 10);
+    if (isNaN(minAge) || isNaN(maxAge)) return [];
+    if (minAge < 0 || maxAge < 0) return [];
+    if (minAge > maxAge) return [];
+
+    const date = new Date();
+    const currentYear = date.getFullYear();
+
+    // Filter users whose birthday is today
+    const searchResult = data.filter(
+      (user: User) =>
+        parseInt((currentYear - user.yearofbirth).toString(), 10) >= minAge &&
+        parseInt((currentYear - user.yearofbirth).toString(), 10) <= maxAge
+    );
+    const searchArray: any = [];
+
+    // Return an array of names (or any other details you want)
+    searchResult.map((user) =>
+      searchArray.push({
+        _id: `${user._id}`,
+        memberid: `${user.memberid}`,
+        avatar: `${user.avatar}`,
+        firstname: `${user.firstname}`,
+        lastname: `${user.lastname}`,
+        age: `${user.age}`,
+        active: `${user.active}`,
+        gender: `${user.gender}`,
+        email: `${user.email}`,
+        occupation: `${user.occupation}`,
+        placeofwork: `${user.placeofwork}`,
+        landmark: `${user.occupation}`,
+        phonenumber1: `${user.phonenumber1}`,
+        phonenumber2: `${user.phonenumber2}`,
+        digitaladdress: `${user.digitaladdress}`,
+      })
+    );
+    return searchArray;
+  }
+
   // Get today's date
   const searchArray = [];
   const searchQuery = query;
