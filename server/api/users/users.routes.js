@@ -8,12 +8,11 @@ import {
   deleteUser,
   logout,
   getsession,
-  uploadAvatar,
   updateAvatar,
   deleteAvatar,
-} from "./users.controller";
-import { isAuthenticated, forwardAuthentication } from "../../middlewares";
-import upload from "../../middlewares/multerConfig";
+} from "./users.controller.js";
+import { isAuthenticated, forwardAuthentication } from "../../middlewares/middlewares.js";
+
 
 const router = Router();
 
@@ -33,12 +32,10 @@ router.delete("/:id", isAuthenticated, deleteUser);
 
 router.get("/auth/logout", isAuthenticated, logout);
 
-router.post("/avatar", isAuthenticated, upload.single("avatar"), uploadAvatar);
 
 router.patch(
   "/avatar/:avatarid",
   isAuthenticated,
-  upload.single("avatar"),
   updateAvatar
 );
 

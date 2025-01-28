@@ -1,16 +1,8 @@
-import { Request, Response, NextFunction } from "express";
-
-
-declare module "express-session" {
-  interface SessionData {
-    authUserId: string;
-  }
-}
 
 export const isAuthenticated = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
+  req,
+  res,
+  next
 ) => {
   try {
     if (process.env.NODE_ENV === "test") {
@@ -29,11 +21,7 @@ export const isAuthenticated = async (
   }
 };
 
-export const forwardAuthentication = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const forwardAuthentication = async (req, res, next) => {
   if (process.env.NODE_ENV === "test") {
     return next();
   }

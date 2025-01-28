@@ -40,7 +40,7 @@ services:
     depends_on:
       - mongo
     env_file:
-      - ./server/src/.env
+      - ./server/.env
     networks:
       - dmcc-network
 
@@ -48,10 +48,10 @@ services:
     container_name: "dmccclient"
     build:
       context: ./client
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     restart: always
     ports:
-      - 80:80
+      - "5173"
     volumes:
       - ./client:/app
       - /app/node_modules

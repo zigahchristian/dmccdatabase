@@ -1,14 +1,13 @@
-import { Request, Response } from "express";
 import {
   createDues,
   getDues,
   deleteDuesById,
   updateDuesById,
   getDuesById,
-} from "./dues.model";
-import { getMemberById } from "../member/member.model";
+} from "./dues.model.js";
+import { getMemberById } from "../member/member.model.js";
 
-export const newDues = async (req: Request, res: Response) => {
+export const newDues = async (req, res) => {
   try {
     const { memberid } = req.params;
     const { description, amount, paid_by } = req.body;
@@ -46,7 +45,7 @@ export const newDues = async (req: Request, res: Response) => {
   }
 };
 
-export const getAllDues = async (req: Request, res: Response) => {
+export const getAllDues = async (req, res) => {
   try {
     const dues = await getDues();
     return res.status(200).json(dues);
@@ -56,7 +55,7 @@ export const getAllDues = async (req: Request, res: Response) => {
   }
 };
 
-export const getRegisteredDuesById = async (req: Request, res: Response) => {
+export const getRegisteredDuesById = async (req, res) => {
   try {
     const { id } = req.params;
     const dbDues = await getDuesById(id);
@@ -67,11 +66,12 @@ export const getRegisteredDuesById = async (req: Request, res: Response) => {
   }
 };
 
-export const updateDues = async (req: Request, res: Response) => {
+export const updateDues = async (req, res) => {
   try {
     const { id } = req.params;
     const changes = req.body;
     const updatedDues = await updateDuesById(id, changes);
+    console.log(updatedDues);
     return res.status(200).end();
   } catch (e) {
     console.log(e);
@@ -79,7 +79,7 @@ export const updateDues = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteDues = async (req: Request, res: Response) => {
+export const deleteDues = async (req, res) => {
   try {
     const { id } = req.params;
     const deletedDues = await deleteDuesById(id);

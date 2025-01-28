@@ -5,8 +5,8 @@ import {
   getUserProfileById,
   updateProfile,
   deleteProfile,
-} from "./profile.controller";
-import { isAuthenticated } from "../../middlewares";
+} from "./profile.controller.js";
+import { isAuthenticated } from "../../middlewares/middlewares.js";
 
 const router = Router();
 

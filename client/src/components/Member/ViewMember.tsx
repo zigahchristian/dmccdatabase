@@ -17,7 +17,7 @@ const ViewMember: React.FC = () => {
       try {
         const dbdata = await MemberService.getMemberById(id);
         dispatch({ type: "FETCH_SUCCESS", payload: dbdata });
-        secureLocalStorage.setItem("currentmember", dbdata);
+        secureLocalStorage.setItem("currentMember", dbdata);
       } catch (error) {
         console.error(error);
         dispatch({ type: "FETCH_FAILED", payload: error });

@@ -1,4 +1,3 @@
-import { Request, Response, NextFunction } from "express";
 import fs from "fs";
 
 import {
@@ -7,28 +6,21 @@ import {
   getUsers,
   deleteUserById,
   getUserById,
-} from "./users.model";
+} from "./users.model.js";
 
 import {
   createProfile,
   deleteProfileById,
   getProfileById,
-} from "../profile/profile.model";
+} from "../profile/profile.model.js";
 
-import { random, authentication } from "../../helpers";
-import sharp from "sharp";
-import { imagepath } from "../../app";
-import { generateId } from "../../helpers";
+import { random, authentication } from "../../helpers/helpers.js";
+import { imagepath } from "../../app.js";
+import { generateId } from "../../helpers/helpers.js";
 import path from "path";
 
-declare module "express-session" {
-  interface SessionData {
-    authUserId: string;
-    requestData: String | undefined;
-  }
-}
 
-export const register = async (req: Request, res: Response) => {
+export const register = async (req, res) => {
   try {
     const { email, password, username } = req.body;
 
@@ -65,7 +57,7 @@ export const register = async (req: Request, res: Response) => {
   }
 };
 
-export const login = async (req: Request, res: Response) => {
+export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -74,7 +66,7 @@ export const login = async (req: Request, res: Response) => {
         .json({ message: "Invalid Username/Password combination" });
     }
 
-    const user: any = await getUserByEmail(email).select(
+    const user = await getUserByEmail(email).select(
       "+authentication.salt +authentication.password"
     );
 
@@ -96,7 +88,7 @@ export const login = async (req: Request, res: Response) => {
         .json({ message: "Invalid Password/Username Combination" });
     }
 
-    const authUser: any = await getUserByEmail(email);
+    const authUser = await getUserByEmail(email);
 
     req.session.authUserId = authUser._id;
 
@@ -109,7 +101,7 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
-export const getsession = async (req: Request, res: Response) => {
+export const getsession = async (req, res) => {
   const { authUserId } = req.session;
   try {
     const sessionUserId = authUserId === undefined ? "123" : authUserId;
@@ -120,12 +112,8 @@ export const getsession = async (req: Request, res: Response) => {
   }
 };
 
-export const logout = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const cookieName: any = process.env.COOKIE_SESSION_NAME;
+export const logout = async ( req, res,next) => {
+  const cookieName = process.env.COOKIE_SESSION_NAME;
   console.log(cookieName);
   res.clearCookie(cookieName);
   req.session.destroy((err) => {
@@ -136,7 +124,7 @@ export const logout = async (
   });
 };
 
-export const getAUserById = async (req: Request, res: Response) => {
+export const getAUserById = async (req, res) => {
   try {
     const { id } = req.params;
     const user = await getUserById(id);
@@ -147,7 +135,7 @@ export const getAUserById = async (req: Request, res: Response) => {
   }
 };
 
-export const getAllUsers = async (req: Request, res: Response) => {
+export const getAllUsers = async (req, res) => {
   try {
     const users = await getUsers();
     return res.status(200).json(users);
@@ -157,7 +145,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteUser = async (req: Request, res: Response) => {
+export const deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -176,7 +164,7 @@ export const deleteUser = async (req: Request, res: Response) => {
   }
 };
 
-export const updateUser = async (req: Request, res: Response) => {
+export const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
     let { username } = req.body;
@@ -201,42 +189,8 @@ export const updateUser = async (req: Request, res: Response) => {
   }
 };
 
-export const uploadAvatar = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { authUserId } = req.session;
 
-    const id = authUserId === undefined ? "123" : authUserId.toString();
-
-    // Generate filename, resize and save to avatar folder
-    const newfilename = `${generateId(12, "avatar")}${path.extname(
-      req?.file?.originalname
-    )}`;
-    const saveTo = imagepath;
-    const filePath = path.join(saveTo, newfilename);
-
-    await sharp(req?.file?.buffer)
-      .resize({ width: 400, height: 300, fit: "inside" })
-      .toFile(filePath);
-
-    // Update User Profile
-    const dbUser = await getProfileById(id);
-    dbUser.avatar = newfilename;
-    await dbUser.save();
-  } catch (err) {
-    console.log(err);
-  }
-  return res.status(200).end();
-};
-
-export const updateAvatar = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const updateAvatar = async (req, res,next) => {
   try {
     const { authUserId } = req.session;
     const { avatarid } = req.params;
@@ -271,11 +225,7 @@ export const updateAvatar = async (
   }
 };
 
-export const deleteAvatar = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const deleteAvatar = async (req, res, next) => {
   try {
     const { authUserId } = req.session;
     const { avatarid } = req.params;

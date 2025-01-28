@@ -12,14 +12,14 @@ export const ProfileModel = mongoose.model("Profile", ProfileSchema);
 
 export const getProfiles = () => ProfileModel.find();
 
-export const getProfileById = (id: string) =>
+export const getProfileById = (id) =>
   ProfileModel.findOne({ userid: id });
 
-export const createProfile = (values: Record<string, any>) =>
+export const createProfile = (values) =>
   new ProfileModel(values).save().then((profile) => profile.toObject());
 
-export const updateProfileById = (id: string, values: Record<string, any>) =>
+export const updateProfileById = (id, values) =>
   ProfileModel.findOneAndUpdate({ userid: id }, values);
 
-export const deleteProfileById = (id: String) =>
+export const deleteProfileById = (id) =>
   ProfileModel.findOneAndDelete({ userid: id });

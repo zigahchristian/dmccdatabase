@@ -5,9 +5,9 @@ import {
   getRegisteredDuesById,
   updateDues,
   deleteDues,
-} from "./dues.controllers";
+} from "./dues.controllers.js";
 
-import { isAuthenticated } from "../../middlewares";
+import { isAuthenticated } from "../../middlewares/middlewares.js";
 
 const router = Router();
 

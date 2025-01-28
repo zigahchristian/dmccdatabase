@@ -121,28 +121,19 @@ const MakePayment = () => {
                   control={form.control}
                   name="description"
                   render={({ field }) => (
-                    <FormItem className="flex-1">
-                      <FormLabel className="block text-sm font-medium text-gray-700">
-                        Description
-                      </FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Description" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value={`Haverst Levy ${currentYear}`}>
-                            Haverst Levy {currentYear}
-                          </SelectItem>
-                          <SelectItem value={`Church Dues ${currentYear}`}>
-                            Church Dues {currentYear}
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Enter Amount"
+                          {...field}
+                          className="
+                              bg-gray-50 border-0
+                              focus:ring-2 focus:ring-blue-500
+                              placeholder:text-gray-400
+                            "
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}

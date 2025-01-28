@@ -34,13 +34,13 @@ export const DuesModel = mongoose.model("Dues", DuesSchema);
 
 export const getDues = () => DuesModel.find();
 
-export const getDuesById = (id: string) => DuesModel.findOne({ _id: id });
+export const getDuesById = (id) => DuesModel.findOne({ _id: id });
 
-export const createDues = (values: Record<string, any>) =>
+export const createDues = (values) =>
   new DuesModel(values).save();
 
-export const updateDuesById = (id: string, values: Record<string, any>) =>
+export const updateDuesById = (id, values) =>
   DuesModel.findOneAndUpdate({ _id: id }, values);
 
-export const deleteDuesById = (id: String) =>
+export const deleteDuesById = (id) =>
   DuesModel.findOneAndDelete({ _id: id });

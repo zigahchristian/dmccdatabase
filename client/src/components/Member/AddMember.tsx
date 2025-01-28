@@ -1,2518 +1,1602 @@
-import React, { useContext } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { useState } from "react";
-import { cn } from "@/lib/utils";
-import { format } from "date-fns";
-
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "../ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
-import { Calendar } from "../ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import React, { useState } from "react";
+import securelocalStorage from "react-secure-storage";
 import { Input } from "../ui/input";
-import { ImageUpload } from "./ImageUpload";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
-import { X, CalendarIcon } from "lucide-react";
+import { X } from "lucide-react";
+
 import { useNavigate } from "react-router-dom";
 import { useNotification } from "../../contexts/NotificationContext";
 import secureLocalStorage from "react-secure-storage";
+import compressBase64Image from "../../helpers/compressBase64Image";
 
-const formSchema = z.object({
-  alive: z.string(),
-  membership: z.string(),
-  avatar: z.string().optional(),
-  firstname: z.string().min(4, {
-    message: "Username must be at least 4 characters.",
-  }),
-  othernames: z.string().min(4, {
-    message: "Username must be at least 4 characters.",
-  }),
-  lastname: z.string().min(4, {
-    message: "Password must be at least 4 characters.",
-  }),
-  dayofbirth: z.string().min(4, {
-    message: "Day of Birth must be a day of the week.",
-  }),
-  numberdayofbirth: z.string().min(1, {
-    message: "Day of Birth must be a number",
-  }),
-  monthofbirth: z.string().min(1, {
-    message: "Please Select Month of Birth",
-  }),
-  yearofbirth: z.string().min(1, {
-    message: "Please Select Year of Birth",
-  }),
-  active: z.string().min(1, {
-    message: "Please Select Active or Inactive",
-  }),
-  gender: z.string().min(1, {
-    message: "Please Select Gender",
-  }),
-  mothertongue: z.string().min(1, {
-    message: "Please Select Mother Tongue",
-  }),
-  placeofbirth: z.string().min(1, {
-    message: "Please Enter Place of Birth",
-  }),
-  hometown: z.string().min(1, {
-    message: "Please Enter Hometown",
-  }),
-  fathersname: z.string().min(1, {
-    message: "Please Enter Hometown",
-  }),
-  mothersname: z.string().min(1, {
-    message: "Please Enter Hometown",
-  }),
-  country: z.string().min(1, {
-    message: "Please Enter Country",
-  }),
-  emergencycontact: z.string(),
-  email: z.string().email("Please enter a valid email"),
-  phonenumber1: z.string().min(10, {
-    message: "Please Enter a valid Phone Number",
-  }),
-  phonenumber2: z.string().min(10, {
-    message: "Please Enter a valid Phone Number 2",
-  }),
-  digitaladdress: z.string().min(5, {
-    message: "Please Enter a valid Digital Address",
-  }),
-  city: z.string().min(2, {
-    message: "Please Enter a valid City",
-  }),
-  landmark: z.string().min(5, {
-    message: "Please Enter a valid Landmark location",
-  }),
-  education: z.string().min(2, {
-    message: "Highest Education must be atleast 2 characters.",
-  }),
-  otherlanguages: z
-    .array(z.string())
-    .min(1, "At least one language is required"),
-  skills: z.array(z.string()).min(1, "At least one skill is required"),
-  occupationstatus: z.string().min(2, {
-    message: "Occuation Status must be atleast 2 characters.",
-  }),
-  occupation: z.string(),
-  placeofwork: z.string(),
-  nameofschool: z.string(),
-  previousparish: z.string().min(2, {
-    message: "Parish must be atleast 2 characters.",
-  }),
-  previousassociations: z
-    .array(z.string())
-    .min(1, "At least one Association is required"),
-  currentassociations: z.array(z.string()),
-  baptised: z.string(),
-  baptised_officiatingminister: z.string(),
-  baptised_placeofbaptism: z.string(),
-  baptised_datebaptism: z.date().optional(),
-  baptised_nlb: z.string(),
-  baptised_godparent: z.string(),
-  firstcommunion: z.string(),
-  firstcommunion_officiatingminister: z.string(),
-  firstcommunion_placeoffirstcommunion: z.string(),
-  firstcommunion_datefirstcommunion: z.date().optional(),
-  firstcommunion_nlc: z.string(),
-  firstcommunion_godparent: z.string(),
-  confirmed: z.string(),
-  confirmed_officiatingminister: z.string(),
-  confirmed_placeofconfirmation: z.string(),
-  confirmed_datefconfirmation: z.date().optional(),
-  confirmed_nlconf: z.string(),
-  confirmed_godparent: z.string(),
-  maritalstatus: z.string(),
-  married_officiatingminister: z.string(),
-  married_placeofholymatrimony: z.string(),
-  married_dateofholymatrimony: z.date().optional(),
-  married_nlm: z.string(),
-  married_godparent: z.string(),
-  nameofspouse: z.string(),
-  spousedenomination: z.string(),
-  spousenationality: z.string(),
-  numberofchildren: z.string(),
-  nameofchildren: z.array(z.string()),
-  dues: z.array(z.string()),
-});
+interface MemberFormInputs {
+  alive: string;
+  membership: string;
+  avatar: string;
+  firstname: string;
+  othernames: string;
+  lastname: string;
+  dayofbirth: string;
+  numberdayofbirth: string;
+  monthofbirth: string;
+  yearofbirth: string;
+  gender: string;
+  active: string;
+  mothertongue: string;
+  placeofbirth: string;
+  hometown: string;
+  fathersname: string;
+  mothersname: string;
+  country: string;
+  email: string;
+  emergencycontact: string;
+  phonenumber1: string;
+  phonenumber2: string;
+  digitaladdress: string;
+  city: string;
+  landmark: string;
+  education: string;
+  otherlanguages: string[];
+  skills: string[];
+  occupationstatus: string;
+  occupation: string;
+  placeofwork: string;
+  nameofschool: string;
+  previousparish: string;
+  previousassociations: string[];
+  currentassociations: string[];
+  baptised: string;
+  baptised_officiatingminister: string;
+  baptised_placeofbaptism: string;
+  baptised_datebaptism?: string;
+  baptised_nlb: string;
+  baptised_godparent: string;
+  firstcommunion: string;
+  firstcommunion_officiatingminister: string;
+  firstcommunion_placeoffirstcommunion: string;
+  firstcommunion_datefirstcommunion?: string;
+  firstcommunion_nlc: string;
+  firstcommunion_godparent: string;
+  confirmed: string;
+  confirmed_officiatingminister: string;
+  confirmed_placeofconfirmation: string;
+  confirmed_datefconfirmation?: string;
+  confirmed_nlconf: string;
+  confirmed_godparent: string;
+  maritalstatus: string;
+  married_officiatingminister: string;
+  married_placeofholymatrimony: string;
+  married_dateofholymatrimony?: string;
+  married_nlm: string;
+  married_godparent: string;
+  nameofspouse: string;
+  spousedenomination: string;
+  spousenationality: string;
+  numberofchildren: string;
+  nameofchildren: string[];
+  dues: string[];
+}
 
-type FormValues = z.infer<typeof formSchema>;
-
-const AddMember = () => {
-  const [avatarFile, setAvatarFile] = useState<File>();
-  const [newLanguage, setNewLanguage] = useState("");
-  const [newSkill, setNewSkill] = useState("");
-  const [newAssociation, setNewAssociation] = useState("");
-  const [newCurrentAssociation, setNewCurrentAssociation] = useState("");
-  const [newChildren, setNewChildren] = useState("");
+const AddMember: React.FC<{
+  currentMember?: Partial<MemberFormInputs>;
+}> = () => {
+  const [languages, setLanguages] = useState<string[]>([]);
+  const [newLanguage, setNewLanguage] = useState<string>("");
+  const [skills, setSkills] = useState<string[]>([]);
+  const [newSkill, setNewSkill] = useState<string>("");
+  const [associations, setAssociations] = useState<string[]>([]);
+  const [newAssociation, setNewAssociation] = useState<string>("");
+  const [cassociations, setCassociations] = useState<string[]>([]);
+  const [newCassociation, setNewCassociation] = useState<string>("");
+  const [children, setChildren] = useState<string[]>([]);
+  const [newChild, setNewChild] = useState<string>("");
   const navigate = useNavigate();
   const { showNotification } = useNotification();
-  const currentMember: any = secureLocalStorage.getItem("currentMember");
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      alive: currentMember?.alive || "true",
-      membership: currentMember?.membership || "active",
-      avatar: currentMember?.avatar || "",
-      firstname: currentMember?.firstname || "",
-      othernames: currentMember?.othernames || "",
-      lastname: currentMember?.lastname || "",
-      dayofbirth: currentMember?.dayofbirth || "",
-      numberdayofbirth: currentMember?.numberdayofbirth || "",
-      monthofbirth: currentMember?.monthofbirth || "",
-      yearofbirth: currentMember?.yearofbirth || "",
-      gender: currentMember?.gender || "",
-      active: currentMember?.active || "active",
-      mothertongue: currentMember?.mothertongue || "",
-      placeofbirth: currentMember?.placeofbirth || "",
-      hometown: currentMember?.hometown || "",
-      fathersname: currentMember?.fathersname || "",
-      mothersname: currentMember?.mothersname || "",
-      country: currentMember?.country || "",
-      email: currentMember?.email || "",
-      emergencycontact: currentMember?.emergencycontact || "",
-      phonenumber1: currentMember?.phonenumber1 || "",
-      phonenumber2: currentMember?.phonenumber2 || "",
-      digitaladdress: currentMember?.digitaladdress || "",
-      city: currentMember?.city || "",
-      landmark: currentMember?.landmark || "",
-      education: currentMember?.education || "",
-      otherlanguages: currentMember?.otherlanguages || [],
-      skills: currentMember?.skills || [],
-      occupationstatus:
-        currentMember?.occupationstatus || "Choose Employment Stats",
-      occupation: currentMember?.occupation || "",
-      placeofwork: currentMember?.placeofwork || "",
-      nameofschool: currentMember?.nameofschool || "",
-      previousparish: currentMember?.previousparish || "",
-      previousassociations: currentMember?.previousassociations || [],
-      currentassociations: currentMember?.currentassociations || [],
-      baptised: currentMember?.baptised || "No",
-      baptised_officiatingminister:
-        currentMember?.baptised_officiatingminister || "",
-      baptised_placeofbaptism: currentMember?.baptised_placeofbaptism || "",
-      baptised_datebaptism: currentMember?.baptised_datebaptism || undefined,
-      baptised_nlb: currentMember?.baptised_nlb || "",
-      baptised_godparent: currentMember?.baptised_godparent || "",
-      firstcommunion: currentMember?.firstcommunion || "No",
-      firstcommunion_officiatingminister:
-        currentMember?.firstcommunion_officiatingminister || "",
-      firstcommunion_placeoffirstcommunion:
-        currentMember?.firstcommunion_placeoffirstcommunion || "",
-      firstcommunion_datefirstcommunion:
-        currentMember?.firstcommunion_datefirstcommunion || undefined,
-      firstcommunion_nlc: currentMember?.firstcommunion_nlc || "",
-      firstcommunion_godparent: currentMember?.firstcommunion_godparent || "",
-      confirmed: currentMember?.confirmed || "No",
-      confirmed_officiatingminister:
-        currentMember?.confirmed_officiatingminister || "",
-      confirmed_placeofconfirmation:
-        currentMember?.confirmed_placeofconfirmation || "",
-      confirmed_datefconfirmation:
-        currentMember?.confirmed_datefconfirmation || undefined,
-      confirmed_nlconf: currentMember?.confirmed_nlconf || "",
-      confirmed_godparent: currentMember?.confirmed_godparent || "",
-      maritalstatus: currentMember?.maritalstatus || "Single",
-      married_officiatingminister:
-        currentMember?.married_officiatingminister || "",
-      married_placeofholymatrimony:
-        currentMember?.married_placeofholymatrimony || "",
-      married_dateofholymatrimony:
-        currentMember?.married_dateofholymatrimony || undefined,
-      married_nlm: currentMember?.married_nlm || "",
-      married_godparent: currentMember?.married_godparent || "",
-      nameofspouse: currentMember?.nameofspouse || "",
-      spousedenomination: currentMember?.spousedenomination || "",
-      spousenationality: currentMember?.spousenationality || "",
-      numberofchildren: currentMember?.numberofchildren || "",
-      nameofchildren: currentMember?.nameofchildren || [],
-      dues: currentMember?.dues || [],
-    },
+  const currentMember = securelocalStorage.getItem("currentMember");
+  const [formData, setFormData] = useState<MemberFormInputs>({
+    alive: currentMember?.alive || "true",
+    membership: currentMember?.membership || "active",
+    avatar: currentMember?.avatar || "",
+    firstname: currentMember?.firstname || "",
+    othernames: currentMember?.othernames || "",
+    lastname: currentMember?.lastname || "",
+    dayofbirth: currentMember?.dayofbirth || "",
+    numberdayofbirth: currentMember?.numberdayofbirth || "",
+    monthofbirth: currentMember?.monthofbirth || "",
+    yearofbirth: currentMember?.yearofbirth || "",
+    gender: currentMember?.gender || "",
+    active: currentMember?.active || "active",
+    mothertongue: currentMember?.mothertongue || "",
+    placeofbirth: currentMember?.placeofbirth || "",
+    hometown: currentMember?.hometown || "",
+    fathersname: currentMember?.fathersname || "",
+    mothersname: currentMember?.mothersname || "",
+    country: currentMember?.country || "",
+    email: currentMember?.email || "",
+    emergencycontact: currentMember?.emergencycontact || "",
+    phonenumber1: currentMember?.phonenumber1 || "",
+    phonenumber2: currentMember?.phonenumber2 || "",
+    digitaladdress: currentMember?.digitaladdress || "",
+    city: currentMember?.city || "",
+    landmark: currentMember?.landmark || "",
+    education: currentMember?.education || "",
+    otherlanguages: currentMember?.otherlanguages || languages,
+    skills: currentMember?.skills || skills,
+    occupationstatus:
+      currentMember?.occupationstatus || "Choose Employment Stats",
+    occupation: currentMember?.occupation || "",
+    placeofwork: currentMember?.placeofwork || "",
+    nameofschool: currentMember?.nameofschool || "",
+    previousparish: currentMember?.previousparish || "",
+    previousassociations: currentMember?.previousassociations || [],
+    currentassociations: currentMember?.currentassociations || [],
+    baptised: currentMember?.baptised || "No",
+    baptised_officiatingminister:
+      currentMember?.baptised_officiatingminister || "",
+    baptised_placeofbaptism: currentMember?.baptised_placeofbaptism || "",
+    baptised_datebaptism: currentMember?.baptised_datebaptism,
+    baptised_nlb: currentMember?.baptised_nlb || "",
+    baptised_godparent: currentMember?.baptised_godparent || "",
+    firstcommunion: currentMember?.firstcommunion || "No",
+    firstcommunion_officiatingminister:
+      currentMember?.firstcommunion_officiatingminister || "",
+    firstcommunion_placeoffirstcommunion:
+      currentMember?.firstcommunion_placeoffirstcommunion || "",
+    firstcommunion_datefirstcommunion:
+      currentMember?.firstcommunion_datefirstcommunion,
+    firstcommunion_nlc: currentMember?.firstcommunion_nlc || "",
+    firstcommunion_godparent: currentMember?.firstcommunion_godparent || "",
+    confirmed: currentMember?.confirmed || "No",
+    confirmed_officiatingminister:
+      currentMember?.confirmed_officiatingminister || "",
+    confirmed_placeofconfirmation:
+      currentMember?.confirmed_placeofconfirmation || "",
+    confirmed_datefconfirmation: currentMember?.confirmed_datefconfirmation,
+    confirmed_nlconf: currentMember?.confirmed_nlconf || "",
+    confirmed_godparent: currentMember?.confirmed_godparent || "",
+    maritalstatus: currentMember?.maritalstatus || "Single",
+    married_officiatingminister:
+      currentMember?.married_officiatingminister || "",
+    married_placeofholymatrimony:
+      currentMember?.married_placeofholymatrimony || "",
+    married_dateofholymatrimony: currentMember?.married_dateofholymatrimony,
+    married_nlm: currentMember?.married_nlm || "",
+    married_godparent: currentMember?.married_godparent || "",
+    nameofspouse: currentMember?.nameofspouse || "",
+    spousedenomination: currentMember?.spousedenomination || "",
+    spousenationality: currentMember?.spousenationality || "",
+    numberofchildren: currentMember?.numberofchildren || "",
+    nameofchildren: currentMember?.nameofchildren || [],
+    dues: currentMember?.dues || [],
   });
 
-  const addlanguage = () => {
-    if (
-      newLanguage.trim() &&
-      !form.getValues("otherlanguages").includes(newLanguage.trim())
-    ) {
-      form.setValue("otherlanguages", [
-        ...form.getValues("otherlanguages"),
-        newLanguage.trim(),
-      ]);
-      setNewLanguage("");
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+  const resizeImage = (
+    dataUrl: string,
+    width: number,
+    height: number,
+    callback: (resizedDataUrl: string) => void
+  ) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      ctx?.drawImage(img, 0, 0, width, height);
+      callback(canvas.toDataURL("image/png"));
+    };
+    img.src = dataUrl;
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        resizeImage(reader.result as string, 300, 300, (resizedDataUrl) => {
+          setFormData({ ...formData, avatar: resizedDataUrl });
+        });
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  const removeLanguage = (languageToRemove: string) => {
-    form.setValue(
-      "otherlanguages",
-      form
-        .getValues("otherlanguages")
-        .filter((language) => language !== languageToRemove)
-    );
+  const addLanguage = () => {
+    if (newLanguage.trim() && !languages.includes(newLanguage.trim())) {
+      setLanguages([...languages, newLanguage.trim()]);
+      setNewLanguage(""); // Clear input after adding
+    }
+  };
+
+  const removeLanguage = (language: string) => {
+    setLanguages(languages.filter((item) => item !== language));
   };
 
   const addSkill = () => {
-    if (
-      newSkill.trim() &&
-      !form.getValues("skills").includes(newSkill.trim())
-    ) {
-      form.setValue("skills", [...form.getValues("skills"), newSkill.trim()]);
-      setNewSkill("");
+    if (newSkill.trim() && !skills.includes(newSkill.trim())) {
+      setSkills([...skills, newSkill.trim()]);
+      setNewSkill(""); // Clear input after adding
     }
   };
 
-  const removeSkill = (skillToRemove: string) => {
-    form.setValue(
-      "skills",
-      form.getValues("skills").filter((skill) => skill !== skillToRemove)
-    );
+  const removeSkill = (skill: string) => {
+    setSkills(skills.filter((item) => item !== skill));
   };
 
   const addAssociation = () => {
     if (
       newAssociation.trim() &&
-      !form.getValues("previousassociations").includes(newAssociation.trim())
+      !associations.includes(newAssociation.trim())
     ) {
-      form.setValue("previousassociations", [
-        ...form.getValues("previousassociations"),
-        newAssociation.trim(),
-      ]);
-      setNewAssociation("");
+      setAssociations([...associations, newAssociation.trim()]);
+      setNewAssociation(""); // Clear input after adding
     }
   };
 
   const removeAssociation = (associationToRemove: string) => {
-    form.setValue(
-      "previousassociations",
-      form
-        .getValues("previousassociations")
-        .filter((association) => association !== associationToRemove)
-    );
-  };
-
-  const addCurrentAssociation = () => {
-    if (
-      newCurrentAssociation.trim() &&
-      !form
-        .getValues("currentassociations")
-        .includes(newCurrentAssociation.trim())
-    ) {
-      form.setValue("currentassociations", [
-        ...form.getValues("currentassociations"),
-        newCurrentAssociation.trim(),
-      ]);
-      setNewCurrentAssociation("");
-    }
-  };
-
-  const removeCurrrentAssociation = (associationToRemove: string) => {
-    form.setValue(
-      "currentassociations",
-      form
-        .getValues("currentassociations")
-        .filter((association) => association !== associationToRemove)
+    setAssociations(
+      associations.filter((item) => item !== associationToRemove)
     );
   };
 
   const addChildren = () => {
-    if (
-      newChildren.trim() &&
-      !form.getValues("nameofchildren").includes(newChildren.trim())
-    ) {
-      form.setValue("nameofchildren", [
-        ...form.getValues("nameofchildren"),
-        newChildren.trim(),
-      ]);
-      setNewChildren("");
+    if (newChild.trim() && !children.includes(newChild.trim())) {
+      setChildren([...children, newChild.trim()]);
+      setNewChild(""); // Clear input after adding
     }
   };
 
-  const removeChildren = (childrenToRemove: string) => {
-    form.setValue(
-      "nameofchildren",
-      form
-        .getValues("nameofchildren")
-        .filter((children) => children !== childrenToRemove)
+  const removeChildren = (childToRemove: string) => {
+    setChildren(children.filter((item) => item !== childToRemove));
+  };
+
+  const addCassociation = () => {
+    if (
+      newCassociation.trim() &&
+      !cassociations.includes(newCassociation.trim())
+    ) {
+      setCassociations([...cassociations, newCassociation.trim()]);
+      setNewCassociation(""); // Clear input after adding
+    }
+  };
+
+  const removeCassociation = (associationToRemove: string) => {
+    setCassociations(
+      cassociations.filter((item) => item !== associationToRemove)
     );
   };
 
-  async function onSubmit(values: FormValues) {
+  const handleSubmit = async (e: React.FormEvent) => {
     try {
-      const formData = new FormData();
-      formData.append("avatar", avatarFile);
-      formData.append("alive", values.alive);
-      formData.append("membership", values.membership);
-      formData.append("firstname", values.firstname);
-      formData.append("othernames", values.othernames);
-      formData.append("lastname", values.lastname);
-      formData.append("dayofbirth", values.dayofbirth);
-      formData.append("numberdayofbirth", values.numberdayofbirth);
-      formData.append("monthofbirth", values.monthofbirth);
-      formData.append("yearofbirth", values.yearofbirth);
-      formData.append("active", values.active);
-      formData.append("placeofbirth", values.placeofbirth);
-      formData.append("hometown", values.hometown);
-      formData.append("fathersname", values.fathersname);
-      formData.append("mothersname", values.mothersname);
-      formData.append("country", values.country);
-      formData.append("email", values.email);
-      formData.append("phonenumber1", values.phonenumber1);
-      formData.append("phonenumber2", values.phonenumber2);
-      formData.append("digitaladdress", values.digitaladdress);
-      formData.append("city", values.city);
-      formData.append("landmark", values.landmark);
-      formData.append("education", values.education);
-      formData.append("otherlanguages", values.otherlanguages);
-      formData.append("skills", values.skills);
-      formData.append("occupationstatus", values.occupationstatus);
-      formData.append("occupation", values.occupation);
-      formData.append("placeofwork", values.placeofwork);
-      formData.append("nameofschool", values.nameofschool);
-      formData.append("previousparish", values.previousparish);
-      formData.append("previousassociations", values.previousassociations);
-      formData.append("baptised", values.baptised);
-      formData.append(
-        "baptised_officiatingminister",
-        values.baptised_officiatingminister
-      );
-      formData.append(
-        "baptised_placeofbaptism",
-        values.baptised_placeofbaptism
-      );
-      formData.append("baptised_datebaptism", values.baptised_datebaptism);
-      formData.append("baptised_nlb", values.baptised_nlb);
-      formData.append("baptised_godparent", values.baptised_godparent);
-      formData.append("firstcommunion", values.firstcommunion);
-      formData.append(
-        "firstcommunion_officiatingminister",
-        values.firstcommunion_officiatingminister
-      );
-      formData.append(
-        "firstcommunion_placeoffirstcommunion",
-        values.firstcommunion_placeoffirstcommunion
-      );
-      formData.append(
-        "firstcommunion_datefirstcommunion",
-        values.firstcommunion_datefirstcommunion
-      );
-      formData.append("firstcommunion_nlc", values.firstcommunion_nlc);
-      formData.append(
-        "firstcommunion_godparent",
-        values.firstcommunion_godparent
-      );
-      formData.append("confirmed", values.confirmed);
-      formData.append(
-        "confirmed_officiatingminister",
-        values.confirmed_officiatingminister
-      );
-      formData.append(
-        "confirmed_placeofconfirmation",
-        values.confirmed_placeofconfirmation
-      );
-      formData.append(
-        "confirmed_datefconfirmation",
-        values.confirmed_datefconfirmation
-      );
-      formData.append("confirmed_nlconf", values.confirmed_nlconf);
-      formData.append("confirmed_godparent", values.confirmed_godparent);
-      formData.append("maritalstatus", values.maritalstatus);
-      formData.append(
-        "married_officiatingminister",
-        values.married_officiatingminister
-      );
-      formData.append(
-        "married_placeofholymatrimony",
-        values.married_placeofholymatrimony
-      );
-      formData.append(
-        "married_dateofholymatrimony",
-        values.married_dateofholymatrimony
-      );
-      formData.append("married_nlm", values.married_nlm);
-      formData.append("nameofspouse", values.nameofspouse);
-      formData.append("spousedenomination", values.spousedenomination);
-      formData.append("spousenationality", values.spousenationality);
-      formData.append("numberofchildren", values.numberofchildren);
-      formData.append("nameofchildren", values.nameofchildren);
+      e.preventDefault();
+      const compressedFile = await compressBase64Image(formData.avatar);
+      formData.avatar = compressedFile;
+      formData.otherlanguages = languages;
+      formData.skills = skills;
+      formData.previousassociations = associations;
+      formData.currentsassociations = cassociations;
+      formData.nameofchildren = children;
 
-      // Handle success
-      console.log("Registration successful");
-      secureLocalStorage.setItem("currentMember", values);
-      console.log(values);
+      secureLocalStorage.setItem("currentMember", formData);
+
       navigate("/previewaddmember");
-      showNotification({
+      return showNotification({
         message: "Proceed to Preview Details & Submit",
         type: "info",
       });
     } catch (error) {
-      console.error("Registration error:", error);
+      console.error("Error previewing Form", error);
     }
-  }
+  };
+
   return (
-    <div className="w-full m-2 mx-auto p-4">
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="">
-            <>
-              <div className="text-center mb-8">
-                <h1 className="text-2xl font-bold text-gray-900">
-                  Register A new Member
-                </h1>
-                <p className="mt-2 text-sm text-gray-600">
-                  Fill in the details below to get started
-                </p>
-              </div>
-              <div className="space-y-6">
-                <div>
-                  <FormField
-                    control={form.control}
-                    name="avatar"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col items-center">
-                        <FormControl>
-                          <ImageUpload
-                            value={field.value}
-                            onChange={(dataUrl, file) => {
-                              field.onChange(dataUrl);
-                              if (file) setAvatarFile(file);
-                            }}
-                            disabled={form.formState.isSubmitting}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-              <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                {/**First Name Field */}
-                <div className="sm:col-span-2">
-                  <FormField
-                    control={form.control}
-                    name="firstname"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>First Name</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter First Name"
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                {/*Last Name Field */}
-                <div className="sm:col-span-2">
-                  <FormField
-                    control={form.control}
-                    name="lastname"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Last Name</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter First Name"
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                {/*Other Name Field */}
-                <div className="sm:col-span-2">
-                  <FormField
-                    control={form.control}
-                    name="othernames"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Other Name</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter Other Name"
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-              <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                {/*Day */}
-                <div className="sm:col-span-2 flex gap-4">
-                  <FormField
-                    control={form.control}
-                    name="dayofbirth"
-                    render={({ field }) => (
-                      <FormItem className="flex-1">
-                        <FormLabel>Day Born</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select Day" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Monday">Monday</SelectItem>
-                            <SelectItem value="Tuesday">Tuesday</SelectItem>
-                            <SelectItem value="Wednesday">Wednesday</SelectItem>
-                            <SelectItem value="Thursday">Thursday</SelectItem>
-                            <SelectItem value="Friday">Friday</SelectItem>
-                            <SelectItem value="Saturday">Saturday</SelectItem>
-                            <SelectItem value="Sunday">Sunday</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  {/* Day of Birth */}
-                  <FormField
-                    control={form.control}
-                    name="numberdayofbirth"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Day of Birth</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Day" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="1">1</SelectItem>
-                            <SelectItem value="2">2</SelectItem>
-                            <SelectItem value="3">3</SelectItem>
-                            <SelectItem value="4">4</SelectItem>
-                            <SelectItem value="5">5</SelectItem>
-                            <SelectItem value="6">6</SelectItem>
-                            <SelectItem value="7">7</SelectItem>
-                            <SelectItem value="8">8</SelectItem>
-                            <SelectItem value="9">9</SelectItem>
-                            <SelectItem value="10">10</SelectItem>
-                            <SelectItem value="11">11</SelectItem>
-                            <SelectItem value="12">12</SelectItem>
-                            <SelectItem value="13">13</SelectItem>
-                            <SelectItem value="14">14</SelectItem>
-                            <SelectItem value="15">15</SelectItem>
-                            <SelectItem value="16">16</SelectItem>
-                            <SelectItem value="17">17</SelectItem>
-                            <SelectItem value="18">18</SelectItem>
-                            <SelectItem value="19">19</SelectItem>
-                            <SelectItem value="20">20</SelectItem>
-                            <SelectItem value="21">21</SelectItem>
-                            <SelectItem value="22">22</SelectItem>
-                            <SelectItem value="23">23</SelectItem>
-                            <SelectItem value="24">24</SelectItem>
-                            <SelectItem value="25">25</SelectItem>
-                            <SelectItem value="26">26</SelectItem>
-                            <SelectItem value="27">27</SelectItem>
-                            <SelectItem value="28">28</SelectItem>
-                            <SelectItem value="29">29</SelectItem>
-                            <SelectItem value="30">30</SelectItem>
-                            <SelectItem value="31">31</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                {/* Month of Birth */}
-                <div className="sm:col-span-2 flex gap-4">
-                  <FormField
-                    control={form.control}
-                    name="monthofbirth"
-                    render={({ field }) => (
-                      <FormItem className="flex-1">
-                        <FormLabel>Month of Birth</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select Month" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="1">January</SelectItem>
-                            <SelectItem value="2">February</SelectItem>
-                            <SelectItem value="3">March</SelectItem>
-                            <SelectItem value="4">April</SelectItem>
-                            <SelectItem value="5">May</SelectItem>
-                            <SelectItem value="6">June</SelectItem>
-                            <SelectItem value="7">July</SelectItem>
-                            <SelectItem value="8">August</SelectItem>
-                            <SelectItem value="9">September</SelectItem>
-                            <SelectItem value="10">October</SelectItem>
-                            <SelectItem value="11">November</SelectItem>
-                            <SelectItem value="12">December</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  {/* Year of Birth */}
-                  <FormField
-                    control={form.control}
-                    name="yearofbirth"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Month of Birth</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select Year" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="1955">1955</SelectItem>
-                            <SelectItem value="1956">1956</SelectItem>
-                            <SelectItem value="1957">1957</SelectItem>
-                            <SelectItem value="1958">1958</SelectItem>
-                            <SelectItem value="1959">1959</SelectItem>
-                            <SelectItem value="1960">1960</SelectItem>
-                            <SelectItem value="1961">1961</SelectItem>
-                            <SelectItem value="1962">1962</SelectItem>
-                            <SelectItem value="1963">1963</SelectItem>
-                            <SelectItem value="1964">1964</SelectItem>
-                            <SelectItem value="1965">1965</SelectItem>
-                            <SelectItem value="1966">1966</SelectItem>
-                            <SelectItem value="1967">1967</SelectItem>
-                            <SelectItem value="1968">1968</SelectItem>
-                            <SelectItem value="1969">1969</SelectItem>
-                            <SelectItem value="1970">1970</SelectItem>
-                            <SelectItem value="1971">1971</SelectItem>
-                            <SelectItem value="1972">1972</SelectItem>
-                            <SelectItem value="1973">1973</SelectItem>
-                            <SelectItem value="1974">1974</SelectItem>
-                            <SelectItem value="1975">1975</SelectItem>
-                            <SelectItem value="1976">1976</SelectItem>
-                            <SelectItem value="1977">1977</SelectItem>
-                            <SelectItem value="1978">1978</SelectItem>
-                            <SelectItem value="1979">1979</SelectItem>
-                            <SelectItem value="1980">1980</SelectItem>
-                            <SelectItem value="1981">1981</SelectItem>
-                            <SelectItem value="1982">1982</SelectItem>
-                            <SelectItem value="1983">1983</SelectItem>
-                            <SelectItem value="1984">1984</SelectItem>
-                            <SelectItem value="1985">1985</SelectItem>
-                            <SelectItem value="1986">1986</SelectItem>
-                            <SelectItem value="1987">1987</SelectItem>
-                            <SelectItem value="1988">1988</SelectItem>
-                            <SelectItem value="1989">1989</SelectItem>
-                            <SelectItem value="1990">1990</SelectItem>
-                            <SelectItem value="1991">1991</SelectItem>
-                            <SelectItem value="1992">1992</SelectItem>
-                            <SelectItem value="1993">1993</SelectItem>
-                            <SelectItem value="1994">1994</SelectItem>
-                            <SelectItem value="1995">1995</SelectItem>
-                            <SelectItem value="1996">1996</SelectItem>
-                            <SelectItem value="1997">1997</SelectItem>
-                            <SelectItem value="1998">1998</SelectItem>
-                            <SelectItem value="1999">1999</SelectItem>
-                            <SelectItem value="2000">2000</SelectItem>
-                            <SelectItem value="2001">2001</SelectItem>
-                            <SelectItem value="2002">2002</SelectItem>
-                            <SelectItem value="2003">2003</SelectItem>
-                            <SelectItem value="2004">2004</SelectItem>
-                            <SelectItem value="2005">2005</SelectItem>
-                            <SelectItem value="2006">2006</SelectItem>
-                            <SelectItem value="2007">2007</SelectItem>
-                            <SelectItem value="2008">2008</SelectItem>
-                            <SelectItem value="2009">2009</SelectItem>
-                            <SelectItem value="2010">2010</SelectItem>
-                            <SelectItem value="2011">2011</SelectItem>
-                            <SelectItem value="2012">2012</SelectItem>
-                            <SelectItem value="2013">2013</SelectItem>
-                            <SelectItem value="2014">2014</SelectItem>
-                            <SelectItem value="2015">2015</SelectItem>
-                            <SelectItem value="2016">2016</SelectItem>
-                            <SelectItem value="2017">2017</SelectItem>
-                            <SelectItem value="2018">2018</SelectItem>
-                            <SelectItem value="2019">2019</SelectItem>
-                            <SelectItem value="2020">2020</SelectItem>
-                            <SelectItem value="2021">2021</SelectItem>
-                            <SelectItem value="2022">2022</SelectItem>
-                            <SelectItem value="2023">2023</SelectItem>
-                            <SelectItem value="2024">2024</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="sm:col-span-2 flex gap-4">
-                  {/* Mother Tongue / Native Language */}
-                  <FormField
-                    control={form.control}
-                    name="mothertongue"
-                    render={({ field }) => (
-                      <FormItem className="flex-1">
-                        <FormLabel>Mother Tongue</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select Language" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Ewe">Ewe</SelectItem>
-                            <SelectItem value="Twi">Twi</SelectItem>
-                            <SelectItem value="Ga">Ga</SelectItem>
-                            <SelectItem value="Dagari">Dagari</SelectItem>
-                            <SelectItem value="Fafra">Fafra</SelectItem>
-                            <SelectItem value="Other">Other</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  {/* Gender */}
-                  <FormField
-                    control={form.control}
-                    name="gender"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Gender</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select Gender" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="male">Male</SelectItem>
-                            <SelectItem value="female">Female</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-              <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                {/* Place of Birth */}
-                <div className="sm:col-span-2">
-                  <FormField
-                    control={form.control}
-                    name="placeofbirth"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Place of Birth</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter Place of Birth"
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                {/* Hometown */}
-                <div className="sm:col-span-2">
-                  <FormField
-                    control={form.control}
-                    name="hometown"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Hometown</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="City"
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                {/* Country */}
-                <div className="sm:col-span-2">
-                  <FormField
-                    control={form.control}
-                    name="country"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Country</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter Country"
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-              <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                {/* Fathers Name */}
-                <div className="sm:col-span-2">
-                  <FormField
-                    control={form.control}
-                    name="fathersname"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Father's Name</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter father's name"
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                {/* Mothers Name */}
-                <div className="sm:col-span-2">
-                  <FormField
-                    control={form.control}
-                    name="mothersname"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Mother's Name</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter mother's name"
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                {/* Emergency Contact */}
-                <div className="sm:col-span-2">
-                  <FormField
-                    control={form.control}
-                    name="emergency contact"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Emergency Contact</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter Emergency Contact Phone Number"
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-              <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                {/* Email */}
-                <div className="sm:col-span-2">
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter Email"
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                {/* Phone Number 1 */}
-                <div className="sm:col-span-2">
-                  <FormField
-                    control={form.control}
-                    name="phonenumber1"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Phone Number 1 - Whatsapp</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter Phone Number Whatsapp"
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                {/* Phone Number 2 */}
-                <div className="sm:col-span-2">
-                  <FormField
-                    control={form.control}
-                    name="phonenumber2"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Phone Number 2</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter Phone Number 2"
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-              <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                {/* Digital Address */}
-                <div className="sm:col-span-2">
-                  <FormField
-                    control={form.control}
-                    name="digitaladdress"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Digital Address</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter Digital Address"
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                {/* City */}
-                <div className="sm:col-span-2">
-                  <FormField
-                    control={form.control}
-                    name="city"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>City</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="City"
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                {/* Landmark */}
-                <div className="sm:col-span-2">
-                  <FormField
-                    control={form.control}
-                    name="landmark"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Landmark</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter Phone Number 2"
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-              <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                <div className="sm:col-span-2">
-                  {/* Education */}
-                  <FormField
-                    control={form.control}
-                    name="education"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Highest Education Qualification</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter Highest Education Qualification"
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                {/*Other Languages */}
-                <div className="sm:col-span-2">
-                  <FormField
-                    control={form.control}
-                    name="otherlanguages"
-                    render={() => (
-                      <FormItem>
-                        <FormLabel>Other Languages</FormLabel>
-                        <div className="space-y-4">
-                          <div className="flex flex-wrap gap-2">
-                            {form
-                              .watch("otherlanguages")
-                              .map((language, index) => (
-                                <Badge
-                                  key={index}
-                                  variant="secondary"
-                                  className="pl-3 pr-2 py-1 flex items-center gap-1"
-                                >
-                                  {language}
-                                  <button
-                                    type="button"
-                                    onClick={() => removeLanguage(language)}
-                                    className="hover:bg-gray-200 rounded-full p-0.5"
-                                  >
-                                    <X className="w-3 h-3" />
-                                  </button>
-                                </Badge>
-                              ))}
-                          </div>
-                          <div className="flex gap-2">
-                            <Input
-                              value={newLanguage}
-                              onChange={(e) => setNewLanguage(e.target.value)}
-                              placeholder="Add other Languages"
-                              onKeyPress={(e) => {
-                                if (e.key === "Enter") {
-                                  e.preventDefault();
-                                  addlanguage();
-                                }
-                              }}
-                            />
-                            <button
-                              type="button"
-                              onClick={addlanguage}
-                              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
-                            >
-                              Add
-                            </button>
-                          </div>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="sm:col-span-2">
-                  {/* Skills */}
-                  <FormField
-                    control={form.control}
-                    name="skills"
-                    render={() => (
-                      <FormItem>
-                        <FormLabel>Skills</FormLabel>
-                        <div className="space-y-4">
-                          <div className="flex flex-wrap gap-2">
-                            {form.watch("skills").map((skill, index) => (
-                              <Badge
-                                key={index}
-                                variant="secondary"
-                                className="pl-3 pr-2 py-1 flex items-center gap-1"
-                              >
-                                {skill}
-                                <button
-                                  type="button"
-                                  onClick={() => removeSkill(skill)}
-                                  className="hover:bg-gray-200 rounded-full p-0.5"
-                                >
-                                  <X className="w-3 h-3" />
-                                </button>
-                              </Badge>
-                            ))}
-                          </div>
-                          <div className="flex gap-2">
-                            <Input
-                              value={newSkill}
-                              onChange={(e) => setNewSkill(e.target.value)}
-                              placeholder="Add a skills"
-                              onKeyPress={(e) => {
-                                if (e.key === "Enter") {
-                                  e.preventDefault();
-                                  addSkill();
-                                }
-                              }}
-                            />
-                            <button
-                              type="button"
-                              onClick={addSkill}
-                              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
-                            >
-                              Add
-                            </button>
-                          </div>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-              <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                {/** Occupation Status */}
-                <div className="sm:col-span-2 flex gap-4">
-                  <FormField
-                    control={form.control}
-                    name="occupationstatus"
-                    render={({ field }) => (
-                      <FormItem className="flex-1">
-                        <FormLabel>Occupation Status</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select Occupation Status" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Employed">Employed</SelectItem>
-                            <SelectItem value="Self Employed">
-                              Self Employed
-                            </SelectItem>
-                            <SelectItem value="Unemployed">
-                              Unemployed
-                            </SelectItem>
-                            <SelectItem value="Retired">Retired</SelectItem>
-                            <SelectItem value="Student">Student</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                {/* Occupation */}
-                <div
-                  className={`sm:col-span-2 ${
-                    form.getValues("occupationstatus") === "Student" ||
-                    form.getValues("occupationstatus") === "Unemployed"
-                      ? "hidden"
-                      : ""
-                  }`}
-                >
-                  <FormField
-                    control={form.control}
-                    name="occupation"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Occupation</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter Occupation"
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                {/* Place of Work*/}
-                <div
-                  className={`sm:col-span-2 ${
-                    form.getValues("occupationstatus") === "Student" ||
-                    form.getValues("occupationstatus") === "Unemployed"
-                      ? "hidden"
-                      : ""
-                  }`}
-                >
-                  <FormField
-                    control={form.control}
-                    name="placeofwork"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Place of Work</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter Place of Work"
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                {/* Name of School */}
-                <div
-                  className={` ${
-                    form.getValues("occupationstatus") === "Student"
-                      ? "sm:col-span-2"
-                      : "hidden"
-                  }`}
-                >
-                  <FormField
-                    control={form.control}
-                    name="nameofschool"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Name of School / Institution</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter Name of School / Institution"
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-              <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                {/* Previous Parish */}
-                <div className="sm:col-span-2">
-                  <FormField
-                    control={form.control}
-                    name="previousparish"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Previous Parish</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter Previous Parish"
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="sm:col-span-4">
-                  {/* Previous Associations */}
-                  <FormField
-                    control={form.control}
-                    name="previousassociations"
-                    render={() => (
-                      <FormItem>
-                        <FormLabel>Previous Associations</FormLabel>
-                        <div className="space-y-4">
-                          <div className="flex flex-wrap gap-2">
-                            {form
-                              .watch("previousassociations")
-                              .map((association, index) => (
-                                <Badge
-                                  key={index}
-                                  variant="secondary"
-                                  className="pl-3 pr-2 py-1 flex items-center gap-1"
-                                >
-                                  {association}
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      removeAssociation(association)
-                                    }
-                                    className="hover:bg-gray-200 rounded-full p-0.5"
-                                  >
-                                    <X className="w-3 h-3" />
-                                  </button>
-                                </Badge>
-                              ))}
-                          </div>
-                          <div className="flex gap-2">
-                            <Input
-                              value={newAssociation}
-                              onChange={(e) =>
-                                setNewAssociation(e.target.value)
-                              }
-                              placeholder="Add a previous Association / Group"
-                              onKeyPress={(e) => {
-                                if (e.key === "Enter") {
-                                  e.preventDefault();
-                                  addAssociation();
-                                }
-                              }}
-                            />
-                            <button
-                              type="button"
-                              onClick={addAssociation}
-                              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
-                            >
-                              Add
-                            </button>
-                          </div>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />{" "}
-                </div>
-                <div className="sm:col-span-6">
-                  {/* Previous Associations */}
-                  <FormField
-                    control={form.control}
-                    name="currentassociations"
-                    render={() => (
-                      <FormItem>
-                        <FormLabel>
-                          Associations You will like to Join in DMCC
-                        </FormLabel>
-                        <div className="space-y-4">
-                          <div className="flex flex-wrap gap-2">
-                            {form
-                              .watch("currentassociations")
-                              .map((association, index) => (
-                                <Badge
-                                  key={index}
-                                  variant="secondary"
-                                  className="pl-3 pr-2 py-1 flex items-center gap-1"
-                                >
-                                  {association}
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      removeCurrrentAssociation(association)
-                                    }
-                                    className="hover:bg-gray-200 rounded-full p-0.5"
-                                  >
-                                    <X className="w-3 h-3" />
-                                  </button>
-                                </Badge>
-                              ))}
-                          </div>
-                          <div className="flex gap-2">
-                            <Input
-                              value={newCurrentAssociation}
-                              onChange={(e) =>
-                                setNewCurrentAssociation(e.target.value)
-                              }
-                              placeholder="Add a previous Association / Group"
-                              onKeyPress={(e) => {
-                                if (e.key === "Enter") {
-                                  e.preventDefault();
-                                  addCurrentAssociation();
-                                }
-                              }}
-                            />
-                            <button
-                              type="button"
-                              onClick={addCurrentAssociation}
-                              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
-                            >
-                              Add
-                            </button>
-                          </div>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />{" "}
-                </div>
-              </div>
-              {/* Sacraments */}
-
-              <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                {/* Baptised */}
-                <div className="sm:col-span-2">
-                  {/* Gender */}
-                  <FormField
-                    control={form.control}
-                    name="baptised"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Are you Baptised?</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Are you Baptised?" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Yes">Yes</SelectItem>
-                            <SelectItem value="No">No</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                {/*Officiating Minister */}
-                <div
-                  className={`sm:col-span-2 ${
-                    form.getValues("baptised") === "No" ? "hidden" : ""
-                  }`}
-                >
-                  <FormField
-                    control={form.control}
-                    name="baptised_officiatingminister"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Officiating Minister</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter Name of Officiating Minister"
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                {/* Place of Baptism */}
-                <div
-                  className={`sm:col-span-2 ${
-                    form.getValues("baptised") === "No" ? "hidden" : ""
-                  }`}
-                >
-                  <FormField
-                    control={form.control}
-                    name="baptised_placeofbaptism"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Place of Baptism</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter Place of Baptism"
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-              <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                {/* Date of Baptised */}
-                <div
-                  className={`sm:col-span-2 ${
-                    form.getValues("baptised") === "No" ? "hidden" : ""
-                  }`}
-                >
-                  <FormField
-                    control={form.control}
-                    name="baptised_datebaptism"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>Date of Baptism</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant={"outline"}
-                                className={cn(
-                                  "w-full py-2 mt-2 pl-3 text-left font-normal",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
-                                {field.value ? (
-                                  format(field.value, "PPP")
-                                ) : (
-                                  <span>Pick a date</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={field.value}
-                              onSelect={field.onChange}
-                              disabled={(date) =>
-                                date > new Date() ||
-                                date < new Date("1900-01-01")
-                              }
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                {/* NLB */}
-                <div
-                  className={`sm:col-span-2 ${
-                    form.getValues("baptised") === "No" ? "hidden" : ""
-                  }`}
-                >
-                  <FormField
-                    control={form.control}
-                    name="baptised_nlb"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>NLB</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter NLB"
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div
-                  className={`sm:col-span-2 ${
-                    form.getValues("baptised") === "No" ? "hidden" : ""
-                  }`}
-                >
-                  <FormField
-                    control={form.control}
-                    name="baptised_godparent"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Baptism - God Parent</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter Baptism God Parent"
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-              {/* First Communion  */}
-
-              <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                {/* Confirmed */}
-                <div className="sm:col-span-2">
-                  <FormField
-                    control={form.control}
-                    name="firstcommunion"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Did you received First Communion?</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Did you received first communion" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Yes">Yes</SelectItem>
-                            <SelectItem value="No">No</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                {/*Officiating Minister  First Communion*/}
-                <div
-                  className={`sm:col-span-2 ${
-                    form.getValues("firstcommunion") === "No" ? "hidden" : ""
-                  }`}
-                >
-                  <FormField
-                    control={form.control}
-                    name="firstcommunion_officiatingminister"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          Officiating Minister - First Communion
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter Name of First Communion Officiating Minister "
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                {/* Place of Confirmation */}
-                <div
-                  className={`sm:col-span-2 ${
-                    form.getValues("firstcommunion") === "No" ? "hidden" : ""
-                  }`}
-                >
-                  <FormField
-                    control={form.control}
-                    name="firstcommunion_placeoffirstcommunion"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Place of First Communion</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter Place of Confirmation."
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-              <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                {/* Date of Confirmation */}
-                <div
-                  className={`sm:col-span-2 ${
-                    form.getValues("firstcommunion") === "No" ? "hidden" : ""
-                  }`}
-                >
-                  <FormField
-                    control={form.control}
-                    name="firstcommunion_datefirstcommunion"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>Date of First Communion</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant={"outline"}
-                                className={cn(
-                                  "w-full py-2 mt-2 pl-3 text-left font-normal",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
-                                {field.value ? (
-                                  format(field.value, "PPP")
-                                ) : (
-                                  <span>Pick a date</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={field.value}
-                              onSelect={field.onChange}
-                              disabled={(date) =>
-                                date > new Date() ||
-                                date < new Date("1900-01-01")
-                              }
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                {/* NLC */}
-                <div
-                  className={`sm:col-span-2 ${
-                    form.getValues("firstcommunion") === "No" ? "hidden" : ""
-                  }`}
-                >
-                  <FormField
-                    control={form.control}
-                    name="firstcommunion_nlc"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>NLC</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter NLC"
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div
-                  className={`sm:col-span-2 ${
-                    form.getValues("firstcommunion") === "No" ? "hidden" : ""
-                  }`}
-                >
-                  <FormField
-                    control={form.control}
-                    name="firstcommunion_godparent"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>First Communion - God Parent</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter Confirmation God Parent"
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-
-              {/* Confirmation */}
-              <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                {/* Confirmed */}
-                <div className="sm:col-span-2">
-                  <FormField
-                    control={form.control}
-                    name="confirmed"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Did you received confirmation?</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Are you confirmed" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Yes">Yes</SelectItem>
-                            <SelectItem value="No">No</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                {/*Officiating Minister  Confirmation*/}
-                <div
-                  className={`sm:col-span-2 ${
-                    form.getValues("confirmed") === "No" ? "hidden" : ""
-                  }`}
-                >
-                  <FormField
-                    control={form.control}
-                    name="confirmed_officiatingminister"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Officiating Minister</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter Name of Confirmation Officiating Minister "
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                {/* Place of Confirmation */}
-                <div
-                  className={`sm:col-span-2 ${
-                    form.getValues("confirmed") === "No" ? "hidden" : ""
-                  }`}
-                >
-                  <FormField
-                    control={form.control}
-                    name="confirmed_placeofconfirmation"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Place of Confirmation</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter Place of Confirmation."
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-              <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                {/* Date of Confirmation */}
-                <div
-                  className={`sm:col-span-2 ${
-                    form.getValues("confirmed") === "No" ? "hidden" : ""
-                  }`}
-                >
-                  <FormField
-                    control={form.control}
-                    name="confirmed_datefconfirmation"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>Date of Confirmation</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant={"outline"}
-                                className={cn(
-                                  "w-full py-2 mt-2 pl-3 text-left font-normal",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
-                                {field.value ? (
-                                  format(field.value, "PPP")
-                                ) : (
-                                  <span>Pick a date</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={field.value}
-                              onSelect={field.onChange}
-                              disabled={(date) =>
-                                date > new Date() ||
-                                date < new Date("1900-01-01")
-                              }
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                {/* NLC */}
-                <div
-                  className={`sm:col-span-2 ${
-                    form.getValues("confirmed") === "No" ? "hidden" : ""
-                  }`}
-                >
-                  <FormField
-                    control={form.control}
-                    name="confirmed_nlconf"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>NLCONF</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter NLCONF"
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div
-                  className={`sm:col-span-2 ${
-                    form.getValues("confirmed") === "No" ? "hidden" : ""
-                  }`}
-                >
-                  <FormField
-                    control={form.control}
-                    name="confirmed_godparent"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Confirmation - God Parent</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter Confirmation God Parent"
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-              {/* Holy Matrimony */}
-
-              <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                {/* Married */}
-                <div className="sm:col-span-2">
-                  <FormField
-                    control={form.control}
-                    name="maritalstatus"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Marital Status ?</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Are you married" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Single">Single</SelectItem>
-                            <SelectItem value="Married">Married</SelectItem>
-                            <SelectItem value="Divorced">Divorced</SelectItem>
-                            <SelectItem value="Seperated">Seperated</SelectItem>
-                            <SelectItem value="Widowed">Widowed</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                {/*Officiating Minister  Holy Matrimony*/}
-                <div
-                  className={`sm:col-span-2 ${
-                    form.getValues("maritalstatus") === "Single"
-                      ? "hidden"
-                      : "sm:col-span-2 "
-                  }`}
-                >
-                  <FormField
-                    control={form.control}
-                    name="married_officiatingminister"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          Officiating Minister - Holy Matrimony
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter Name of Officiating Minister - Holy Matrimony "
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                {/* Place of Holy Matrimony */}
-                <div
-                  className={`sm:col-span-2 ${
-                    form.getValues("maritalstatus") === "Single" ? "hidden" : ""
-                  }`}
-                >
-                  <FormField
-                    control={form.control}
-                    name="married_placeofholymatrimony"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Place of Holy Matrimony</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter Place of Confirmation."
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-              <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                {/* Date of Confirmation */}
-                <div
-                  className={`sm:col-span-2 ${
-                    form.getValues("maritalstatus") === "Single" ? "hidden" : ""
-                  }`}
-                >
-                  <FormField
-                    control={form.control}
-                    name="married_dateofholymatrimony"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>Date of Holy Matrimony</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant={"outline"}
-                                className={cn(
-                                  "w-full py-2 mt-2 pl-3 text-left font-normal",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
-                                {field.value ? (
-                                  format(field.value, "PPP")
-                                ) : (
-                                  <span>Pick a date</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={field.value}
-                              onSelect={field.onChange}
-                              disabled={(date) =>
-                                date > new Date() ||
-                                date < new Date("1900-01-01")
-                              }
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                {/* NLM */}
-                <div
-                  className={`sm:col-span-2 ${
-                    form.getValues("maritalstatus") === "Single" ? "hidden" : ""
-                  }`}
-                >
-                  <FormField
-                    control={form.control}
-                    name="married_nlm"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>NLM</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter NLM"
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div
-                  className={`sm:col-span-2 ${
-                    form.getValues("maritalstatus") === "Single" ? "hidden" : ""
-                  }`}
-                >
-                  <FormField
-                    control={form.control}
-                    name="married_godparent"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Holy Matrimony - God Parent</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter Confirmation God Parent"
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div
-                  className={`sm:col-span-2 ${
-                    form.getValues("maritalstatus") === "Single" ? "hidden" : ""
-                  }`}
-                >
-                  <FormField
-                    control={form.control}
-                    name="nameofspouse"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Name of Spouse</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter name of Spouse"
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div
-                  className={`sm:col-span-2 ${
-                    form.getValues("maritalstatus") === "Single" ? "hidden" : ""
-                  }`}
-                >
-                  <FormField
-                    control={form.control}
-                    name="spousedenomination"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Spouse Denomination</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter Spouse Denomination"
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div
-                  className={`sm:col-span-2 ${
-                    form.getValues("maritalstatus") === "Single" ? "hidden" : ""
-                  }`}
-                >
-                  <FormField
-                    control={form.control}
-                    name="spousenationality"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Spouse Nationality</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter Spouse Nationality"
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div
-                  className={`sm:col-span-2 ${
-                    form.getValues("maritalstatus") === "Single" ? "hidden" : ""
-                  }`}
-                >
-                  <FormField
-                    control={form.control}
-                    name="numberofchildren"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Enter Number of Children</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter Number of Children"
-                            {...field}
-                            className="
-                              bg-gray-50 border-0
-                              focus:ring-2 focus:ring-blue-500
-                              placeholder:text-gray-400
-                            "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div
-                  className={`sm:col-span-4 ${
-                    form.getValues("maritalstatus") === "Single" ? "hidden" : ""
-                  }`}
-                >
-                  {/* Number of Children */}
-                  <FormField
-                    control={form.control}
-                    name="nameofchildren"
-                    render={() => (
-                      <FormItem>
-                        <FormLabel>Name of Children</FormLabel>
-                        <div className="space-y-4">
-                          <div className="flex flex-wrap gap-2">
-                            {form
-                              .watch("nameofchildren")
-                              .map((children, index) => (
-                                <Badge
-                                  key={index}
-                                  variant="secondary"
-                                  className="pl-3 pr-2 py-1 flex items-center gap-1"
-                                >
-                                  {children}
-                                  <button
-                                    type="button"
-                                    onClick={() => removeChildren(children)}
-                                    className="hover:bg-gray-200 rounded-full p-0.5"
-                                  >
-                                    <X className="w-3 h-3" />
-                                  </button>
-                                </Badge>
-                              ))}
-                          </div>
-                          <div className="flex gap-2">
-                            <Input
-                              value={newChildren}
-                              onChange={(e) => setNewChildren(e.target.value)}
-                              placeholder="Add a previous Association / Group"
-                              onKeyPress={(e) => {
-                                if (e.key === "Enter") {
-                                  e.preventDefault();
-                                  addChildren();
-                                }
-                              }}
-                            />
-                            <button
-                              type="button"
-                              onClick={addChildren}
-                              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
-                            >
-                              Add
-                            </button>
-                          </div>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-            </>
-
-            <Button> Preview & Submit</Button>
-          </form>
-        </Form>
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-6 bg-white p-6 rounded-lg shadow-md"
+    >
+      <div className="text-center mb-8">
+        <h1 className="text-2xl font-bold text-gray-900">
+          Register A new Member
+        </h1>
+        <p className="mt-2 text-sm text-gray-600">
+          Fill in the details below to get started
+        </p>
       </div>
-    </div>
+      <div className="flex flex-col">
+        <label htmlFor="firstname" className="font-medium text-gray-700">
+          First Name
+        </label>
+        <input
+          id="firstname"
+          name="firstname"
+          value={formData.firstname}
+          onChange={handleChange}
+          required
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div className="flex flex-col">
+        <label htmlFor="lastname" className="font-medium text-gray-700">
+          Last Name
+        </label>
+        <input
+          id="lastname"
+          name="lastname"
+          value={formData.lastname}
+          onChange={handleChange}
+          required
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div className="flex flex-col">
+        <label htmlFor="lastname" className="font-medium text-gray-700">
+          Other Names
+        </label>
+        <input
+          id="othernames"
+          name="othernames"
+          value={formData.othernames}
+          onChange={handleChange}
+          required
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div className="flex flex-col">
+        <label htmlFor="dayofbirth" className="font-medium text-gray-700">
+          Day Of Birth
+        </label>
+        <select
+          id="dayofbirth"
+          name="dayofbirth"
+          value={formData.dayofbirth}
+          onChange={handleChange}
+          required
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="">Select Day of Birth</option>
+          <option value="Monday">Monday</option>
+          <option value="Tuesday">Tuesday</option>
+          <option value="Wednesday">Wednesday</option>
+          <option value="Thursday">Thursday</option>
+          <option value="Friday">Friday</option>
+          <option value="Saturday">Saturday</option>
+          <option value="Sunday">Sunday</option>
+        </select>
+      </div>
+      <div className="flex flex-col">
+        <label htmlFor="dayofbirth" className="font-medium text-gray-700">
+          Number Day of Birth
+        </label>
+        <select
+          id="numberdayofbirth"
+          name="numberdayofbirth"
+          value={formData.numberdayofbirth}
+          onChange={handleChange}
+          required
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+          <option value="11">11</option>
+          <option value="12">12</option>
+          <option value="13">13</option>
+          <option value="14">14</option>
+          <option value="15">15</option>
+          <option value="16">16</option>
+          <option value="17">17</option>
+          <option value="18">18</option>
+          <option value="19">19</option>
+          <option value="20">20</option>
+          <option value="21">21</option>
+          <option value="22">22</option>
+          <option value="23">23</option>
+          <option value="24">24</option>
+          <option value="25">25</option>
+          <option value="26">26</option>
+          <option value="27">27</option>
+          <option value="28">28</option>
+          <option value="29">29</option>
+          <option value="30">30</option>
+          <option value="31">31</option>
+        </select>
+      </div>
+      <div className="flex flex-col">
+        <label htmlFor="dayofbirth" className="font-medium text-gray-700">
+          Month Of Birth
+        </label>
+        <select
+          id="monthofbirth"
+          name="monthofbirth"
+          value={formData.monthofbirth}
+          onChange={handleChange}
+          required
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="1">January</option>
+          <option value="2">February</option>
+          <option value="3">March</option>
+          <option value="4">April</option>
+          <option value="5">May</option>
+          <option value="6">June</option>
+          <option value="7">July</option>
+          <option value="8">August</option>
+          <option value="9">September</option>
+          <option value="10">October</option>
+          <option value="11">November</option>
+          <option value="12">December</option>
+        </select>
+      </div>
+      <div className="flex flex-col">
+        <label htmlFor="dayofbirth" className="font-medium text-gray-700">
+          Year Of Birth
+        </label>
+        <select
+          id="yearofbirth"
+          name="yearofbirth"
+          value={formData.yearofbirth}
+          onChange={handleChange}
+          required
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="1955">1955</option>
+          <option value="1956">1956</option>
+          <option value="1957">1957</option>
+          <option value="1958">1958</option>
+          <option value="1959">1959</option>
+          <option value="1960">1960</option>
+          <option value="1961">1961</option>
+          <option value="1962">1962</option>
+          <option value="1963">1963</option>
+          <option value="1964">1964</option>
+          <option value="1965">1965</option>
+          <option value="1966">1966</option>
+          <option value="1967">1967</option>
+          <option value="1968">1968</option>
+          <option value="1969">1969</option>
+          <option value="1970">1970</option>
+          <option value="1971">1971</option>
+          <option value="1972">1972</option>
+          <option value="1973">1973</option>
+          <option value="1974">1974</option>
+          <option value="1975">1975</option>
+          <option value="1976">1976</option>
+          <option value="1977">1977</option>
+          <option value="1978">1978</option>
+          <option value="1979">1979</option>
+          <option value="1980">1980</option>
+          <option value="1981">1981</option>
+          <option value="1982">1982</option>
+          <option value="1983">1983</option>
+          <option value="1984">1984</option>
+          <option value="1985">1985</option>
+          <option value="1986">1986</option>
+          <option value="1987">1987</option>
+          <option value="1988">1988</option>
+          <option value="1989">1989</option>
+          <option value="1990">1990</option>
+          <option value="1991">1991</option>
+          <option value="1992">1992</option>
+          <option value="1993">1993</option>
+          <option value="1994">1994</option>
+          <option value="1995">1995</option>
+          <option value="1996">1996</option>
+          <option value="1997">1997</option>
+          <option value="1998">1998</option>
+          <option value="1999">1999</option>
+          <option value="2000">2000</option>
+          <option value="2001">2001</option>
+          <option value="2002">2002</option>
+          <option value="2003">2003</option>
+          <option value="2004">2004</option>
+          <option value="2005">2005</option>
+          <option value="2006">2006</option>
+          <option value="2007">2007</option>
+          <option value="2008">2008</option>
+          <option value="2009">2009</option>
+          <option value="2010">2010</option>
+        </select>
+      </div>
+      <div className="flex flex-col">
+        <label htmlFor="gender" className="font-medium text-gray-700">
+          Gender
+        </label>
+        <select
+          id="gender"
+          name="gender"
+          value={formData.gender}
+          onChange={handleChange}
+          required
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="">Select Gender</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+        </select>
+      </div>
+      <div className="flex flex-col">
+        <label htmlFor="mothertongue" className="font-medium text-gray-700">
+          Mother Tongue
+        </label>
+        <input
+          id="mothertongue"
+          name="mothertongue"
+          value={formData.mothertongue}
+          onChange={handleChange}
+          required
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div className="flex flex-col">
+        <label htmlFor="placeofbirth" className="font-medium text-gray-700">
+          Place Of Birth
+        </label>
+        <input
+          id="placeofbirth"
+          name="placeofbirth"
+          value={formData.placeofbirth}
+          onChange={handleChange}
+          required
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div className="flex flex-col">
+        <label htmlFor="hometown" className="font-medium text-gray-700">
+          Hometown
+        </label>
+        <input
+          id="hometown"
+          name="hometown"
+          value={formData.hometown}
+          onChange={handleChange}
+          required
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div className="flex flex-col">
+        <label htmlFor="fathersname" className="font-medium text-gray-700">
+          Father's Name
+        </label>
+        <input
+          id="fathersname"
+          name="fathersname"
+          value={formData.fathersname}
+          onChange={handleChange}
+          required
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div className="flex flex-col">
+        <label htmlFor="mothersname" className="font-medium text-gray-700">
+          Mother's Name
+        </label>
+        <input
+          id="mothersname"
+          name="mothersname"
+          value={formData.mothersname}
+          onChange={handleChange}
+          required
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div className="flex flex-col">
+        <label htmlFor="country" className="font-medium text-gray-700">
+          Country
+        </label>
+        <input
+          id="country"
+          name="country"
+          value={formData.country}
+          onChange={handleChange}
+          required
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div className="flex flex-col">
+        <label htmlFor="email" className="font-medium text-gray-700">
+          Email
+        </label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          value={formData.email}
+          onChange={handleChange}
+          required
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div className="flex flex-col">
+        <label htmlFor="emergencycontact" className="font-medium text-gray-700">
+          Emergency Contact
+        </label>
+        <input
+          id="emergencycontact"
+          name="emergencycontact"
+          value={formData.emergencycontact}
+          onChange={handleChange}
+          required
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div className="flex flex-col">
+        <label htmlFor="phonenumber1" className="font-medium text-gray-700">
+          Phone Number - WhatsApp
+        </label>
+        <input
+          id="phonenumber1"
+          name="phonenumber1"
+          value={formData.phonenumber1}
+          onChange={handleChange}
+          required
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div className="flex flex-col">
+        <label htmlFor="phonenumber2" className="font-medium text-gray-700">
+          Phone Number 2
+        </label>
+        <input
+          id="phonenumber2"
+          name="phonenumber2"
+          value={formData.phonenumber2}
+          onChange={handleChange}
+          required
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div className="flex flex-col">
+        <label htmlFor="digitaladdress" className="font-medium text-gray-700">
+          Digital Address
+        </label>
+        <input
+          id="digitaladdress"
+          name="digitaladdress"
+          value={formData.digitaladdress}
+          onChange={handleChange}
+          required
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div className="flex flex-col">
+        <label htmlFor="city" className="font-medium text-gray-700">
+          City
+        </label>
+        <input
+          id="city"
+          name="city"
+          value={formData.city}
+          onChange={handleChange}
+          required
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div className="flex flex-col">
+        <label htmlFor="landmark" className="font-medium text-gray-700">
+          Landmark
+        </label>
+        <input
+          id="landmark"
+          name="landmark"
+          value={formData.landmark}
+          onChange={handleChange}
+          required
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div className="flex flex-col">
+        <label htmlFor="education" className="font-medium text-gray-700">
+          Highest Education
+        </label>
+        <input
+          id="education"
+          name="education"
+          value={formData.education}
+          onChange={handleChange}
+          required
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+
+      <div className="flex flex-col">
+        <label htmlFor="phonenumber1" className="font-medium text-gray-700">
+          Phone Number 1
+        </label>
+        <input
+          id="phonenumber1"
+          name="phonenumber1"
+          value={formData.phonenumber1}
+          onChange={handleChange}
+          required
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div className="flex flex-col">
+        <div className="sm:col-span-2">
+          <label htmlFor="otherlanguages" className="font-medium text-gray-700">
+            Other Languages
+          </label>
+          <div className="space-y-4">
+            <div className="flex flex-wrap gap-2">
+              {languages.map((language, index) => (
+                <Badge
+                  key={index}
+                  variant="secondary"
+                  className="pl-3 pr-2 py-1 flex items-center gap-1"
+                >
+                  {language}
+                  <button
+                    type="button"
+                    onClick={() => removeLanguage(language)}
+                    className="hover:bg-gray-200 rounded-full p-0.5"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </Badge>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <Input
+                value={newLanguage}
+                onChange={(e) => setNewLanguage(e.target.value)}
+                placeholder="Add other Languages"
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addLanguage();
+                  }
+                }}
+              />
+              <Button
+                type="button"
+                onClick={addLanguage}
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
+              >
+                Add
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="flex flex-col">
+        <div className="sm:col-span-2">
+          <label htmlFor="skills" className="font-medium text-gray-700">
+            Add Skills
+          </label>
+          <div className="space-y-4">
+            <div className="flex flex-wrap gap-2">
+              {skills.map((skill, index) => (
+                <Badge
+                  key={index}
+                  variant="secondary"
+                  className="pl-3 pr-2 py-1 flex items-center gap-1"
+                >
+                  {skill}
+                  <button
+                    type="button"
+                    onClick={() => removeSkill(skill)}
+                    className="hover:bg-gray-200 rounded-full p-0.5"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </Badge>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <Input
+                value={newSkill}
+                onChange={(e) => setNewSkill(e.target.value)}
+                placeholder="Add other Languages"
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addSkill();
+                  }
+                }}
+              />
+              <Button
+                type="button"
+                onClick={addSkill}
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
+              >
+                Add
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="flex flex-col">
+        <label htmlFor="gender" className="font-medium text-gray-700">
+          Occupation Status
+        </label>
+        <select
+          id="occupationstatus"
+          name="occupationstatus"
+          value={formData.occupationstatus}
+          onChange={handleChange}
+          required
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="Employed">Employed</option>
+          <option value="Self Employed">Self Employed</option>
+          <option value="Unemployed">Unemployed</option>
+          <option value="Retired">Retired</option>
+          <option value="Student">Student</option>
+        </select>
+      </div>
+      <div
+        className={`sm:col-span-2 ${
+          formData.occupationstatus === "Student" ||
+          formData.occupationstatus === "Unemployed"
+            ? "hidden"
+            : ""
+        }`}
+      >
+        <label htmlFor="occupation" className="font-medium text-gray-700">
+          Occupation
+        </label>
+        <input
+          id="occupation"
+          name="occupation"
+          value={formData.occupation}
+          onChange={handleChange}
+          className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div
+        className={`sm:col-span-2 ${
+          formData.occupationstatus === "Student" ||
+          formData.occupationstatus === "Unemployed"
+            ? "hidden"
+            : ""
+        }`}
+      >
+        <label htmlFor="placeofwork" className="font-medium text-gray-700">
+          Place of Work
+        </label>
+        <input
+          id="placeofwork"
+          name="placeofwork"
+          value={formData.placeofwork}
+          onChange={handleChange}
+          className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div
+        className={` ${
+          formData.occupationstatus === "Student" ? "sm:col-span-2" : "hidden"
+        }`}
+      >
+        <label htmlFor="nameofschool" className="font-medium text-gray-700">
+          Name of School
+        </label>
+        <input
+          id="nameofschool"
+          name="nameofschool"
+          value={formData.nameofschool}
+          onChange={handleChange}
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div className="flex flex-col">
+        <label htmlFor="previousparish" className="font-medium text-gray-700">
+          Previous Parish
+        </label>
+        <input
+          id="previousparish"
+          name="previousparish"
+          value={formData.previousparish}
+          onChange={handleChange}
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+
+      <div>
+        <div className="flex flex-col">
+          <label
+            htmlFor="previousassociations"
+            className="font-medium text-gray-700"
+          >
+            Previous Associations
+          </label>
+          <div className="space-y-4">
+            <div className="flex flex-wrap gap-2">
+              {associations.map((association, index) => (
+                <Badge
+                  key={index}
+                  variant="secondary"
+                  className="pl-3 pr-2 py-1 flex items-center gap-1"
+                >
+                  {association}
+                  <button
+                    type="button"
+                    onClick={() => removeAssociation(association)}
+                    className="hover:bg-gray-200 rounded-full p-0.5"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </Badge>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <Input
+                value={newAssociation}
+                onChange={(e) => setNewAssociation(e.target.value)}
+                placeholder="Add other Languages"
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addAssociation();
+                  }
+                }}
+              />
+              <Button
+                type="button"
+                onClick={addAssociation}
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
+              >
+                Add
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div className="flex flex-col">
+          <label
+            htmlFor="currentassociations"
+            className="font-medium text-gray-700"
+          >
+            Associations You will like to Join in DMCC
+          </label>
+          <div className="space-y-4">
+            <div className="flex flex-wrap gap-2">
+              {cassociations.map((association, index) => (
+                <Badge
+                  key={index}
+                  variant="secondary"
+                  className="pl-3 pr-2 py-1 flex items-center gap-1"
+                >
+                  {association}
+                  <button
+                    type="button"
+                    onClick={() => removeCassociation(association)}
+                    className="hover:bg-gray-200 rounded-full p-0.5"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </Badge>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <Input
+                value={newCassociation}
+                onChange={(e) => setNewCassociation(e.target.value)}
+                placeholder="Add other Languages"
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addCassociation();
+                  }
+                }}
+              />
+              <Button
+                type="button"
+                onClick={addCassociation}
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
+              >
+                Add
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="flex flex-col">
+        <label htmlFor="baptised" className="font-medium text-gray-700">
+          Baptised
+        </label>
+        <select
+          id="baptised"
+          name="baptised"
+          value={formData.baptised}
+          onChange={handleChange}
+          required
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+      <div
+        className={`sm:col-span-2 flex flex-col ${
+          formData.baptised === "No" ? "hidden" : ""
+        }`}
+      >
+        <label
+          htmlFor="baptised_officiatingminister"
+          className="font-medium text-gray-700"
+        >
+          Baptised Officiating Minister
+        </label>
+        <input
+          id="baptised_officiatingminister"
+          name="baptised_officiatingminister"
+          value={formData.baptised_officiatingminister}
+          onChange={handleChange}
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div
+        className={`sm:col-span-2 flex flex-col ${
+          formData.baptised === "No" ? "hidden" : ""
+        }`}
+      >
+        <label
+          htmlFor="baptised_placeofbaptism"
+          className="font-medium text-gray-700"
+        >
+          Baptised Place of Baptism
+        </label>
+        <input
+          id="baptised_placeofbaptism"
+          name="baptised_placeofbaptism"
+          value={formData.baptised_placeofbaptism}
+          onChange={handleChange}
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div
+        className={`sm:col-span-2 flex flex-col ${
+          formData.baptised === "No" ? "hidden" : ""
+        }`}
+      >
+        <label
+          htmlFor="baptised_datebaptism"
+          className="font-medium text-gray-700"
+        >
+          Baptised Date of Baptism
+        </label>
+        <input
+          id="baptised_datebaptism"
+          name="baptised_datebaptism"
+          type="date"
+          value={formData.baptised_datebaptism}
+          onChange={handleChange}
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 w-full"
+        />
+      </div>
+      <div
+        className={`sm:col-span-2 flex flex-col ${
+          formData.baptised === "No" ? "hidden" : ""
+        }`}
+      >
+        <label htmlFor="baptised_nlb" className="font-medium text-gray-700">
+          NLB from Baptisma Card
+        </label>
+        <input
+          id="baptised_nlb"
+          name="baptised_nlb"
+          value={formData.baptised_nlb}
+          onChange={handleChange}
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div
+        className={`sm:col-span-2 flex flex-col ${
+          formData.baptised === "No" ? "hidden" : ""
+        }`}
+      >
+        <label
+          htmlFor="baptised_godparent"
+          className="font-medium text-gray-700"
+        >
+          Baptised Godparent
+        </label>
+        <input
+          id="baptised_godparent"
+          name="baptised_godparent"
+          value={formData.baptised_godparent}
+          onChange={handleChange}
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div className="flex flex-col">
+        <label htmlFor="confirmed" className="font-medium text-gray-700">
+          Received First Communion?
+        </label>
+        <select
+          id="firstcommunion"
+          name="firstcommunion"
+          value={formData.firstcommunion}
+          onChange={handleChange}
+          required
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="Yes">{formData.firstcommunion}</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+      <div
+        className={`sm:col-span-2 flex flex-col ${
+          formData.firstcommunion === "No" ? "hidden" : ""
+        }`}
+      >
+        <label
+          htmlFor="firstcommunion_officiatingminister"
+          className="font-medium text-gray-700"
+        >
+          First Communion Officiating Minister
+        </label>
+        <input
+          id="firstcommunion_officiatingminister"
+          name="firstcommunion_officiatingminister"
+          value={formData.firstcommunion_officiatingminister}
+          onChange={handleChange}
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div
+        className={`sm:col-span-2 flex flex-col ${
+          formData.firstcommunion === "No" ? "hidden" : ""
+        }`}
+      >
+        <label
+          htmlFor="firstcommunion_placeoffirstcommunion"
+          className="font-medium text-gray-700"
+        >
+          First Communion Place of First Communion
+        </label>
+        <input
+          id="firstcommunion_placeoffirstcommunion"
+          name="firstcommunion_placeoffirstcommunion"
+          value={formData.firstcommunion_placeoffirstcommunion}
+          onChange={handleChange}
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div
+        className={`sm:col-span-2 flex flex-col ${
+          formData.firstcommunion === "No" ? "hidden" : ""
+        }`}
+      >
+        <label
+          htmlFor="firstcommunion_dateoffirstcommunion"
+          className="font-medium text-gray-700"
+        >
+          First Communion Date of First Communion
+        </label>
+        <input
+          id="firstcommunion_dateoffirstcommunion"
+          name="firstcommunion_dateoffirstcommunion"
+          type="date"
+          value={formData.firstcommunion_dateoffirstcommunion}
+          onChange={handleChange}
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 w-full"
+        />
+      </div>
+      <div
+        className={`sm:col-span-2 flex flex-col ${
+          formData.firstcommunion === "No" ? "hidden" : ""
+        }`}
+      >
+        <label
+          htmlFor="firstcommunion_nlb"
+          className="font-medium text-gray-700"
+        >
+          NLB from First Communion Card
+        </label>
+        <input
+          id="firstcommunion_nlb"
+          name="firstcommunion_nlb"
+          value={formData.firstcommunion_nlb}
+          onChange={handleChange}
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div
+        className={`sm:col-span-2 flex flex-col ${
+          formData.firstcommunion === "No" ? "hidden" : ""
+        }`}
+      >
+        <label
+          htmlFor="firstcommunion_godparent"
+          className="font-medium text-gray-700"
+        >
+          First Communion Godparent
+        </label>
+        <input
+          id="firstcommunion_godparent"
+          name="firstcommunion_godparent"
+          value={formData.firstcommunion_godparent}
+          onChange={handleChange}
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div className="flex flex-col">
+        <label htmlFor="confirmed" className="font-medium text-gray-700">
+          Confirmed
+        </label>
+        <select
+          id="confirmed"
+          name="confirmed"
+          value={formData.confirmed}
+          onChange={handleChange}
+          required
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+      <div
+        className={`sm:col-span-2 flex flex-col ${
+          formData.confirmed === "No" ? "hidden" : ""
+        }`}
+      >
+        <label
+          htmlFor="confirmed_officiatingminister"
+          className="font-medium text-gray-700"
+        >
+          Confirmed Officiating Minister
+        </label>
+        <input
+          id="confirmed_officiatingminister"
+          name="confirmed_officiatingminister"
+          value={formData.confirmed_officiatingminister}
+          onChange={handleChange}
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div
+        className={`sm:col-span-2 flex flex-col ${
+          formData.confirmed === "No" ? "hidden" : ""
+        }`}
+      >
+        <label
+          htmlFor="confirmed_placeofconfirmation"
+          className="font-medium text-gray-700"
+        >
+          Confirmed Place of Confirmation
+        </label>
+        <input
+          id="confirmed_placeofconfirmation"
+          name="confirmed_placeofconfirmation"
+          value={formData.confirmed_placeofconfirmation}
+          onChange={handleChange}
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div
+        className={`sm:col-span-2 flex flex-col ${
+          formData.confirmed === "No" ? "hidden" : ""
+        }`}
+      >
+        <label
+          htmlFor="confirmed_dateconfirmation"
+          className="font-medium text-gray-700"
+        >
+          Confirmed Date of Confirmation
+        </label>
+        <input
+          id="confirmed_dateconfirmation"
+          name="confirmed_dateconfirmation"
+          type="date"
+          value={formData.confirmed_dateconfirmation}
+          onChange={handleChange}
+          className="w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 w-full"
+        />
+      </div>
+      <div
+        className={`sm:col-span-2 flex flex-col ${
+          formData.confirmed === "No" ? "hidden" : ""
+        }`}
+      >
+        <label htmlFor="confirmed_nlb" className="font-medium text-gray-700">
+          NLConf from Confirmation Card
+        </label>
+        <input
+          id="confirmed_nlconf"
+          name="confirmed_nlconf"
+          value={formData.confirmed_nlb}
+          onChange={handleChange}
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div
+        className={`sm:col-span-2 flex flex-col ${
+          formData.confirmed === "No" ? "hidden" : ""
+        }`}
+      >
+        <label
+          htmlFor="confirmed_godparent"
+          className="font-medium text-gray-700"
+        >
+          Confirmed Godparent
+        </label>
+        <input
+          id="confirmed_godparent"
+          name="confirmed_godparent"
+          value={formData.confirmed_godparent}
+          onChange={handleChange}
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+      <div className="flex flex-col">
+        <label htmlFor="maritalstatus" className="font-medium text-gray-700">
+          Marital Status
+        </label>
+        <select
+          id="maritalstatus"
+          name="maritalstatus"
+          value={formData.maritalstatus}
+          onChange={handleChange}
+          required
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="Single">Single</option>
+          <option value="Married">Married</option>
+          <option value="Divorced">Divorced</option>
+          <option value="Widowed">Widowed</option>
+        </select>
+      </div>
+      <div
+        className={`sm:col-span-2 flex flex-col ${
+          formData.maritalstatus === "Single" ? "hidden" : ""
+        }`}
+      >
+        <div className="flex flex-col">
+          <label
+            htmlFor="officiatingminister"
+            className="font-medium text-gray-700"
+          >
+            Marriage - Officiating Minister
+          </label>
+          <input
+            id="marriage_officiatingminister"
+            name="marriage_officiatingminister"
+            value={formData.marriage_officiatingminister}
+            onChange={handleChange}
+            className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+      </div>
+      <div
+        className={`sm:col-span-2 flex flex-col ${
+          formData.maritalstatus === "Single" ? "hidden" : ""
+        }`}
+      >
+        <div className="flex flex-col">
+          <label
+            htmlFor="placeofmarriage"
+            className="font-medium text-gray-700"
+          >
+            Marriage - Place of Marriage
+          </label>
+          <input
+            id="marriage_placeofmarriage"
+            name="marriage_placeofmarriage"
+            value={formData.marriage_placeofmarriage}
+            onChange={handleChange}
+            className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+      </div>
+      <div
+        className={`sm:col-span-2 flex flex-col ${
+          formData.maritalstatus === "Single" ? "hidden" : ""
+        }`}
+      >
+        <div className="flex flex-col">
+          <label htmlFor="dateofmarriage" className="font-medium text-gray-700">
+            Marriage - Date of Marriage
+          </label>
+          <input
+            id="marriage_dateofmarriage"
+            name="marriage_dateofmarriage"
+            type="date"
+            value={formData.marriage_dateofmarriage}
+            onChange={handleChange}
+            className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 w-full"
+          />
+        </div>
+      </div>
+      <div
+        className={`sm:col-span-2 flex flex-col ${
+          formData.maritalstatus === "Single" ? "hidden" : ""
+        }`}
+      >
+        <div className="flex flex-col">
+          <label htmlFor="spouse" className="font-medium text-gray-700">
+            Marriage - NLM
+          </label>
+          <input
+            id="marriage_nlm"
+            name="marriage_nlm"
+            value={formData.marriage_nlm}
+            onChange={handleChange}
+            className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+      </div>
+      <div
+        className={`sm:col-span-2 flex flex-col ${
+          formData.maritalstatus === "Single" ? "hidden" : ""
+        }`}
+      >
+        <div className="flex flex-col">
+          <label htmlFor="spouse" className="font-medium text-gray-700">
+            Marriage - GodParent
+          </label>
+          <input
+            id="marriage_godparent"
+            name="marriage_godparent"
+            value={formData.marriage_godparent}
+            onChange={handleChange}
+            className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+      </div>
+      <div
+        className={`sm:col-span-2 flex flex-col ${
+          formData.maritalstatus === "Single" ? "hidden" : ""
+        }`}
+      >
+        <div className="flex flex-col">
+          <label htmlFor="nameofspouse" className="font-medium text-gray-700">
+            Name of Spouse
+          </label>
+          <input
+            id="nameofspouse"
+            name="nameofspouse"
+            value={formData.spouse}
+            onChange={handleChange}
+            className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+      </div>
+      <div
+        className={`sm:col-span-2 flex flex-col ${
+          formData.maritalstatus === "Single" ? "hidden" : ""
+        }`}
+      >
+        <div className="flex flex-col">
+          <label
+            htmlFor="nameofdemonination"
+            className="font-medium text-gray-700"
+          >
+            Spouse Denominations
+          </label>
+          <input
+            id="spousedenomination"
+            name="spousedemonination"
+            value={formData.spousedemonination}
+            onChange={handleChange}
+            className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+      </div>
+
+      <div
+        className={`sm:col-span-2 flex flex-col ${
+          formData.maritalstatus === "Single" ? "hidden" : ""
+        }`}
+      >
+        <div className="flex flex-col">
+          <label
+            htmlFor="spousenationality"
+            className="font-medium text-gray-700"
+          >
+            Number of Children
+          </label>
+
+          <input
+            id="numberofchildren"
+            name="numberofchildren"
+            value={formData.numberofchildren}
+            onChange={handleChange}
+            className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+      </div>
+
+      <div>
+        <div
+          className={`sm:col-span-2 flex flex-col ${
+            formData.maritalstatus === "Single" ? "hidden" : ""
+          }`}
+        >
+          <label htmlFor="nameofchildren" className="font-medium text-gray-700">
+            Name of Children
+          </label>
+          <div className="space-y-4">
+            <div className="flex flex-wrap gap-2">
+              {children.map((child, index) => (
+                <Badge
+                  key={index}
+                  variant="secondary"
+                  className="pl-3 pr-2 py-1 flex items-center gap-1"
+                >
+                  {child}
+                  <button
+                    type="button"
+                    onClick={() => removeChildren(child)}
+                    className="hover:bg-gray-200 rounded-full p-0.5"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </Badge>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <Input
+                value={newChild}
+                onChange={(e) => setNewChild(e.target.value)}
+                placeholder="Add other Languages"
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addChildren();
+                  }
+                }}
+              />
+              <Button
+                type="button"
+                onClick={addChildren}
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
+              >
+                Add
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-col">
+        <label htmlFor="avatar" className="font-medium text-gray-700">
+          Avatar
+        </label>
+        <input
+          id="avatar"
+          name="avatar"
+          type="file"
+          accept="image/*"
+          onChange={handleImageUpload}
+          required
+          className="mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+        {formData.avatar && (
+          <img
+            src={formData.avatar}
+            alt="Avatar Preview"
+            className="mt-4 w-32 h-32 object-cover rounded-full"
+          />
+        )}
+      </div>
+      <button
+        type="submit"
+        className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:ring-2 focus:ring-blue-400"
+      >
+        Submit
+      </button>
+    </form>
   );
 };
 

@@ -1,24 +1,13 @@
 import crypto from "crypto";
-const dotenv = require("dotenv");
+import dotenv from "dotenv";
 import mongoose from "mongoose";
 import path from "path";
 
-import { unlink } from "node:fs/promises";
+const { unlink } = "node:fs/promises";
 
 import fs from "fs";
 
-/**
- * Saves a Base64 string as an image file in a specified folder.
- * @param base64 - The Base64 string, including the data URL prefix.
- * @param folderPath - The path to the folder where the file should be saved.
- * @param fileName - The name of the output file.
- * @returns The full path of the saved file.
- */
-export const saveBase64ToFile = (
-  base64: string,
-  folderPath: string,
-  fileName: string
-): string => {
+export const saveBase64ToFile = (base64, folderPath, fileName) => {
   // Ensure the folder exists
   if (!fs.existsSync(folderPath)) {
     fs.mkdirSync(folderPath, { recursive: true });
@@ -52,8 +41,8 @@ export const saveBase64ToFile = (
 
 export const random = () => crypto.randomBytes(128).toString("base64");
 
-export const authentication = (salt: string, password: string) => {
-  const SECRET_KEY: any = process.env.SECRET_KEY;
+export const authentication = (salt, password) => {
+  const SECRET_KEY = process.env.SECRET_KEY;
   return crypto
     .createHmac("sha256", [salt, password].join("/"))
     .update(SECRET_KEY)
@@ -62,17 +51,11 @@ export const authentication = (salt: string, password: string) => {
 
 export const getenv = () => {
   return process.env.NODE_ENV === undefined || "test"
-    ? dotenv.config({ path: "./src/.env" })
+    ? dotenv.config({ path: "./.env" })
     : dotenv.config();
 };
 
-interface configOptions {
-  useNewUrlParser: boolean;
-  useCreateIndex: boolean;
-  usefindAndModify: boolean;
-}
-
-export const connectDB = async (mongoUri: string) => {
+export const connectDB = async (mongoUri) => {
   try {
     const conn = await mongoose.connect(mongoUri);
     console.log(
@@ -84,7 +67,7 @@ export const connectDB = async (mongoUri: string) => {
   }
 };
 
-export const generateId = (length: any, text: String) => {
+export const generateId = (length, text) => {
   let pretext = text;
   const randInt = Math.floor(
     Math.pow(10, length - 1) +
@@ -93,11 +76,11 @@ export const generateId = (length: any, text: String) => {
   return `${pretext.toUpperCase()}${randInt}`;
 };
 
-export const deleteUploadedAvatar = (filePath: any) => {
+export const deleteUploadedAvatar = (filePath) => {
   return unlink(filePath);
 };
 
-export const getError = (error: any) => {
+export const getError = (error) => {
   return error.response && error.response.data.message
     ? error.response.data.message
     : error.message;

@@ -8,10 +8,9 @@ import {
   updateAvatar,
   deleteAvatar,
   newBulkMemberUpdload,
-} from "./member.controllers";
+} from "./member.controllers.js";
 
-import csvuploads from "../../middlewares/csvuploads";
-import { isAuthenticated } from "../../middlewares";
+import { isAuthenticated } from "../../middlewares/middlewares.js";
 
 const router = Router();
 
@@ -29,7 +28,6 @@ router.delete("/:id", isAuthenticated, deleteMember);
 
 router.post(
   "/newBulkMembersUpload",
-  csvuploads.single("members"),
   newBulkMemberUpdload
 );
 

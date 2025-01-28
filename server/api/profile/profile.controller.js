@@ -1,15 +1,14 @@
-import { Request, Response } from "express";
 import {
   createProfile,
   getProfiles,
   deleteProfileById,
   updateProfileById,
   getProfileById,
-} from "./profile.model";
+} from "./profile.model.js";
 
-import { getUserById } from "../users/users.model";
+import { getUserById } from "../users/users.model.js";
 
-export const newProfile = async (req: Request, res: Response) => {
+export const newProfile = async (req, res) => {
   try {
     const { id } = req.params;
     const { firstname, lastname, dob } = req.body;
@@ -38,7 +37,7 @@ export const newProfile = async (req: Request, res: Response) => {
   }
 };
 
-export const getAllProfiles = async (req: Request, res: Response) => {
+export const getAllProfiles = async (req, res) => {
   try {
     const profiles = await getProfiles();
     return res.status(200).json(profiles);
@@ -48,7 +47,7 @@ export const getAllProfiles = async (req: Request, res: Response) => {
   }
 };
 
-export const getUserProfileById = async (req: Request, res: Response) => {
+export const getUserProfileById = async (req, res) => {
   try {
     const { id } = req.params;
     const profile = await getProfileById(id);
@@ -59,7 +58,7 @@ export const getUserProfileById = async (req: Request, res: Response) => {
   }
 };
 
-export const updateProfile = async (req: Request, res: Response) => {
+export const updateProfile = async (req, res) => {
   try {
     const { id } = req.params;
     const changes = req.body;
@@ -80,7 +79,7 @@ export const updateProfile = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteProfile = async (req: Request, res: Response) => {
+export const deleteProfile = async (req, res) => {
   try {
     const { id } = req.params;
     const deletedUser = await deleteProfileById(id);

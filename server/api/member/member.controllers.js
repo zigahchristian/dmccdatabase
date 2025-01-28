@@ -1,21 +1,19 @@
-import { Request, Response } from "express";
 import {
   createMember,
   getMembers,
   getMemberById,
   deleteMemberById,
   updateMemberById,
-} from "./member.model";
+} from "./member.model.js";
 
 import fs from "fs";
 import path from "path";
-import sharp from "sharp";
-import { imagepath } from "../../app";
-import { generateId, saveBase64ToFile } from "../../helpers";
+import { imagepath } from "../../app.js";
+import { generateId, saveBase64ToFile } from "../../helpers/helpers.js";
 import csv from "csvtojson";
-const imgpath = "/app/src/avatar";
+const imgpath = "/app/avatar";
 
-export const newBulkMemberUpdload = async (req: Request, res: Response) => {
+export const newBulkMemberUpdload = async (req, res) => {
   try {
     const csvData = await csv().fromString(req?.file.buffer.toString());
 
@@ -29,7 +27,7 @@ export const newBulkMemberUpdload = async (req: Request, res: Response) => {
   }
 };
 
-export const newMember = async (req: Request, res: Response) => {
+export const newMember = async (req, res) => {
   try {
     const { firstname, othernames, lastname, gender } = req.body;
 
@@ -117,8 +115,6 @@ export const newMember = async (req: Request, res: Response) => {
       created_by: enteredByUser,
     });
 
-    console.log(member);
-
     return res
       .status(200)
       .json({ success: true, msg: "successfully added a new member" });
@@ -128,7 +124,7 @@ export const newMember = async (req: Request, res: Response) => {
   }
 };
 
-export const getAllMembers = async (req: Request, res: Response) => {
+export const getAllMembers = async (req, res) => {
   try {
     const members = await getMembers();
     return res.status(200).json(members);
@@ -138,7 +134,7 @@ export const getAllMembers = async (req: Request, res: Response) => {
   }
 };
 
-export const getRegisteredMemberById = async (req: Request, res: Response) => {
+export const getRegisteredMemberById = async (req, res) => {
   try {
     const { id } = req.params;
     const dbmember = await getMemberById(id);
@@ -149,7 +145,7 @@ export const getRegisteredMemberById = async (req: Request, res: Response) => {
   }
 };
 
-export const updateMember = async (req: Request, res: Response) => {
+export const updateMember = async (req, res) => {
   try {
     const { id } = req.params;
     const changes = req.body;
@@ -162,7 +158,7 @@ export const updateMember = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteMember = async (req: Request, res: Response) => {
+export const deleteMember = async (req, res) => {
   try {
     const { id } = req.params;
     const deletedMember = await deleteMemberById(id);
@@ -173,13 +169,12 @@ export const deleteMember = async (req: Request, res: Response) => {
   }
 };
 
-export const updateAvatar = async (req: Request, res: Response) => {
+export const updateAvatar = async (req, res) => {
   try {
     const { memberid } = req.params;
 
     // Update Member
     const dbMember = await getMemberById(memberid);
-    console.log(dbMember);
     dbMember.avatar = saveBase64ToFile(
       req.body.avatar,
       imgpath,
@@ -192,7 +187,7 @@ export const updateAvatar = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteAvatar = async (req: Request, res: Response) => {
+export const deleteAvatar = async (req, res) => {
   try {
     const { memberid, avatarid } = req.params;
 

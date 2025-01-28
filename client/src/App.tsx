@@ -24,7 +24,6 @@ import LoginForm from "./components/Auth/LoginForm";
 import RegisterForm from "./components/Auth/RegisterForm";
 import { isAuthenticated } from "./helpers/auth";
 import PreviewAddMember from "./components/Member/PreviewAddMember";
-import PreviewUpdateMember from "./components/Member/PreviewUpdateMember";
 import ProtectedRoute from "./components/Auth/ProtectRoute";
 
 const App = () => {
@@ -67,10 +66,6 @@ const App = () => {
             <Route path="/updatememberimage" element={<UpdateMemberImage />} />
             <Route path="/updateimage/:id" element={<UpdateImage />} />
             <Route path="/previewaddmember" element={<PreviewAddMember />} />
-            <Route
-              path="/previewupdatemember"
-              element={<PreviewUpdateMember />}
-            />
             <Route path="/viewmember/:id" element={<ViewMember />} />
             <Route path="/editmember/:id" element={<EditMember />} />
             <Route path="/makepayment/:id" element={<MakePayment />} />

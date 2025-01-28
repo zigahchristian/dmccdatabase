@@ -1,33 +1,37 @@
-import { getenv } from "./helpers";
+import { getenv } from "./helpers/helpers.js";
 import express from "express";
-import { Request, Response, NextFunction } from "express";
 import fs from "fs";
 import morgan from "morgan";
 import path from "path";
 import cookieParser from "cookie-parser";
 import compression from "compression";
 import helmet from "helmet";
+import { fileURLToPath } from "url";
 
 import cors from "cors";
 
-const session = require("express-session");
-const MongoStore = require("connect-mongo");
+import session from "express-session";
+import MongoStore from "connect-mongo";
 
 getenv();
+console.log(process.env.MONGO_URL);
 
-import router from "./routes";
+import router from "./routes/routes.js";
 
 const app = express();
 
-export const imagepath = path.join(__dirname, "avatar");
-export const csvpath = path.join(__dirname, "csvdata");
+const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
+const __dirname = path.dirname(__filename); // get the name of the directory
 
-app.use("/api/static/", express.static(path.join(__dirname, "avatar")));
-app.use("/api/csv/", express.static(path.join(__dirname, "csvdata")));
+console.log(__dirname);
+export const imagepath = path.join(__dirname, "avatar");
+console.log(imagepath);
+
+app.use("/api/static", express.static(imagepath));
 
 app.use(
   cors({
-    origin: "http://api",
+    origin: "http://localhost:5173/api/", //http://api
     credentials: true,
   })
 );
@@ -36,7 +40,7 @@ app.use(
 const appsession = session({
   store: new MongoStore({
     mongoUrl: process.env.MONGO_URL,
-    ttl: 14 * 24 * 60 * 60,
+    ttl: 172800000,
     autoRemove: "native",
   }),
   secret: process.env.COOKIE_SESSION_SECRET,
@@ -46,7 +50,7 @@ const appsession = session({
   cookie: {
     secure: false, // if true: only transmit cookie over https, in prod, always activate this
     httpOnly: false, // if true: prevents client side JS from reading the cookie
-    maxAge: 1000 * 60 * 30, // session max age in milliseconds
+    maxAge: 172800000, // session max age in milliseconds
     // explicitly set cookie to lax
     // to make sure that all cookies accept it
     // you should never use none anyway
@@ -78,13 +82,13 @@ const accessLogStream = fs.createWriteStream(
 app.use(morgan("combined", { stream: accessLogStream }));
 
 const getSessionId = () => {
-  morgan.token("sessionid", (req: Request) => {
+  morgan.token("sessionid", (req) => {
     return req.sessionID ? req.sessionID : "------";
   });
 };
 
 const getSessionUser = () => {
-  morgan.token("user", (req: Request) => {
+  morgan.token("user", (req) => {
     try {
       const { authUserId } = req.session;
       return authUserId;
@@ -106,7 +110,7 @@ app.use(
 app.use(router);
 
 //Error Handler
-app.use(function (req: Request, res: Response, next: NextFunction) {
+app.use(function (req, res, next) {
   res.status(404).json({ msg: "Unable to find the requested resource!" });
 });
 

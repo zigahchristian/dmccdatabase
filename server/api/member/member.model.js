@@ -87,14 +87,14 @@ export const MemberModel = mongoose.model("Member", MemberSchema);
 
 export const getMembers = () => MemberModel.find().populate("dues");
 
-export const getMemberById = (id: string) =>
+export const getMemberById = (id) =>
   MemberModel.findOne({ _id: id }).populate("dues");
 
-export const createMember = (values: Record<string, any>) =>
+export const createMember = (values) =>
   new MemberModel(values).save();
 
-export const updateMemberById = (id: string, values: Record<string, any>) =>
+export const updateMemberById = (id, values) =>
   MemberModel.findOneAndUpdate({ _id: id }, values);
 
-export const deleteMemberById = (id: String) =>
+export const deleteMemberById = (id) =>
   MemberModel.findOneAndDelete({ _id: id });

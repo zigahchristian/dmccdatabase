@@ -1,6 +1,6 @@
 import http from "http";
-import { connectDB } from "./helpers";
-import app from "./app";
+import { connectDB } from "./helpers/helpers.js";
+import app from "./app.js";
 
 const server = http.createServer(app);
 
