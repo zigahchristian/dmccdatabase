@@ -17,7 +17,7 @@ services:
     container_name: "dmccserver"
     build:
       context: ./server
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     ports:
       - "7240"
     volumes:

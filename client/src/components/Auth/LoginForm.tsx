@@ -78,6 +78,7 @@ const LoginForm = () => {
               <FormField
                 control={form.control}
                 name="email"
+                id="email"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Email</FormLabel>
@@ -102,6 +103,7 @@ const LoginForm = () => {
                     <FormLabel>Password</FormLabel>
                     <FormControl>
                       <Input
+                        id="password"
                         type="password"
                         placeholder="Enter your password"
                         {...field}
